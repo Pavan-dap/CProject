@@ -834,7 +834,7 @@ const Tasks: React.FC = () => {
                   )}
                   <div style={{ marginBottom: 12 }}>
                     <Text strong>Assigned To: </Text>
-                    <Text>{getUserById(viewingTask.assignedTo)?.name}</Text>
+                    <Text>{getUser(viewingTask.assignedTo)?.name || 'Unassigned'}</Text>
                   </div>
                   <div style={{ marginBottom: 12 }}>
                     <Text strong>Priority: </Text>
