@@ -22,6 +22,7 @@ import Users from './components/Users';
 import GanttChart from './components/GanttChart';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { DataProvider } from './contexts/DataContext';
+import { GlobalStateProvider } from './contexts/GlobalStateContext';
 import './styles/App.css';
 
 const { Header, Content, Sider } = Layout;
