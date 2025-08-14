@@ -1,10 +1,10 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect } from "react";
 
 export interface User {
   id: number;
   name: string;
   email: string;
-  role: 'admin' | 'manager' | 'incharge' | 'executive';
+  role: "admin" | "manager" | "incharge" | "executive";
   avatar?: string;
   projectIds?: number[];
 }
@@ -22,40 +22,42 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const mockUsers: User[] = [
   {
     id: 1,
-    name: 'John Smith',
-    email: 'admin@construct.com',
-    role: 'admin'
+    name: "Akhila Neti",
+    email: "admin@construct.com",
+    role: "admin",
   },
   {
     id: 2,
-    name: 'Sarah Johnson',
-    email: 'manager@construct.com',
-    role: 'manager',
-    projectIds: [1, 2]
+    name: "Nagarjuna Nitta",
+    email: "manager@construct.com",
+    role: "manager",
+    projectIds: [1, 2],
   },
   {
     id: 3,
-    name: 'Mike Wilson',
-    email: 'incharge@construct.com',
-    role: 'incharge',
-    projectIds: [1]
+    name: "Sarada Reddy",
+    email: "incharge@construct.com",
+    role: "incharge",
+    projectIds: [1],
   },
   {
     id: 4,
-    name: 'Lisa Davis',
-    email: 'executive@construct.com',
-    role: 'executive',
-    projectIds: [1, 2]
-  }
+    name: "Sai Kumar",
+    email: "executive@construct.com",
+    role: "executive",
+    projectIds: [1, 2],
+  },
 ];
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Check if user is logged in from localStorage
-    const savedUser = localStorage.getItem('user');
+    const savedUser = localStorage.getItem("user");
     if (savedUser) {
       setUser(JSON.parse(savedUser));
     }
@@ -64,26 +66,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string): Promise<boolean> => {
     setLoading(true);
-    
+
     // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const foundUser = mockUsers.find(u => u.email === email);
-    
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    const foundUser = mockUsers.find((u) => u.email === email);
+
     if (foundUser) {
       setUser(foundUser);
-      localStorage.setItem('user', JSON.stringify(foundUser));
+      localStorage.setItem("user", JSON.stringify(foundUser));
       setLoading(false);
       return true;
     }
-    
+
     setLoading(false);
     return false;
   };
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('user');
+    localStorage.removeItem("user");
   };
 
   return (
@@ -96,7 +98,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };

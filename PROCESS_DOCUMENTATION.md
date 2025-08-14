@@ -5,6 +5,7 @@
 This Construction Project Management System is designed to manage large-scale construction projects with hierarchical task management, dependency tracking, and comprehensive reporting.
 
 ### **User Hierarchy**
+
 - **Admin**: Full system access, creates projects, assigns managers
 - **Manager**: Manages projects, assigns incharges, oversees progress
 - **Incharge**: Assigns tasks to executives, monitors site-level work
@@ -17,11 +18,13 @@ This Construction Project Management System is designed to manage large-scale co
 ### **1. Project Creation Process**
 
 #### **Step 1: Admin Creates Project**
+
 ```
 Admin Login → Dashboard → Projects → Add New Project
 ```
 
 **Required Information:**
+
 - Project Name (e.g., "ABC Township Phase-2")
 - Client Details (ABC Developers Ltd.)
 - Location (Mumbai, Maharashtra)
@@ -30,11 +33,13 @@ Admin Login → Dashboard → Projects → Add New Project
 - Project Manager Assignment
 
 #### **Step 2: Project Hierarchy Setup**
+
 ```
 Project → Hierarchy → Add Blocks/Floors/Units
 ```
 
 **Hierarchy Structure:**
+
 ```
 Project
 ├── Block A
@@ -53,25 +58,29 @@ Project
 ### **2. Task Assignment Process**
 
 #### **Step 1: Manager Creates Tasks**
+
 ```
 Manager Login → Projects → Select Project → Tasks → Add Task
 ```
 
 **Task Creation Form:**
+
 - Task Title: "UPVC Window Installation - Block A Floor 1"
 - Description: Detailed work description
 - Location: Block A → Floor 1 → Unit 101 → 3BHK
-- Assigned To: Executive (Lisa Davis)
+- Assigned To: Executive (Sai Kumar)
 - Priority: High/Medium/Low
 - Due Date: Target completion date
 - Estimated Hours: Time estimation
 
 #### **Step 2: Task Dependencies Setup**
+
 ```
 Task Details → Dependencies → Add Dependency
 ```
 
 **Dependency Chain Example:**
+
 ```
 Foundation Work (Task 1)
     ↓ (depends on)
@@ -85,6 +94,7 @@ Interior Finishing (Task 5)
 ```
 
 **Dependency Rules:**
+
 - Tasks cannot start until dependencies are completed
 - Exception: Tasks marked "Can start without dependency"
 - Visual indicators show dependency status
@@ -93,11 +103,13 @@ Interior Finishing (Task 5)
 ### **3. Task Execution Process**
 
 #### **Step 1: Executive Receives Task**
+
 ```
 Executive Login → Dashboard → My Tasks → View Task Details
 ```
 
 **Task Information Displayed:**
+
 - Task details and requirements
 - Dependency status (Ready/Waiting)
 - Location and unit information
@@ -105,11 +117,13 @@ Executive Login → Dashboard → My Tasks → View Task Details
 - File attachments and specifications
 
 #### **Step 2: Task Progress Updates**
+
 ```
 Task Details → Update Progress → Upload Photos → Add Comments
 ```
 
 **Progress Update Form:**
+
 - Progress Percentage (0-100%)
 - Status Change (Not Started → In Progress → Completed)
 - Work Hours Logged
@@ -117,11 +131,13 @@ Task Details → Update Progress → Upload Photos → Add Comments
 - Comments and Notes
 
 #### **Step 3: File and Photo Management**
+
 ```
 Task → Attachments → Upload Files/Photos
 ```
 
 **Supported Uploads:**
+
 - Photos: JPG, PNG (with location tagging)
 - Documents: PDF, DOC, XLS
 - Specifications and drawings
@@ -130,22 +146,26 @@ Task → Attachments → Upload Files/Photos
 ### **4. Dependency Management Process**
 
 #### **Visual Dependency Tracking**
+
 ```
 Tasks → Dependency View → Visual Flow Chart
 ```
 
 **Dependency Indicators:**
+
 - ✅ **Ready to Start**: All dependencies completed
 - ⚠️ **Waiting**: Dependencies pending
 - 🔗 **Linked**: Shows dependency connections
 - 📋 **Communication**: Comments between dependent task owners
 
 #### **Dependency Communication**
+
 ```
 Task Details → Comments → Tag Dependent Task Owner
 ```
 
 **Communication Features:**
+
 - Direct messaging between task owners
 - Dependency status notifications
 - Automatic alerts when dependencies complete
@@ -154,11 +174,13 @@ Task Details → Comments → Tag Dependent Task Owner
 ### **5. Gantt Chart Process**
 
 #### **Timeline Visualization**
+
 ```
 Dashboard → Timeline (Gantt Chart) → Filter Options
 ```
 
 **Gantt Chart Features:**
+
 - **Project Bars**: Main project timelines
 - **Task Bars**: Individual task schedules
 - **Dependency Lines**: Visual connections between tasks
@@ -167,6 +189,7 @@ Dashboard → Timeline (Gantt Chart) → Filter Options
 - **Status Colors**: Color-coded by task status
 
 #### **Gantt Chart Interactions**
+
 - **Hover**: Show task details
 - **Click**: Open task details modal
 - **Filter**: By project, status, assignee
@@ -176,22 +199,27 @@ Dashboard → Timeline (Gantt Chart) → Filter Options
 ### **6. Reporting Process**
 
 #### **Project Status Reports**
+
 ```
 Reports → Project Status → Select Project → Generate Report
 ```
 
 **Report Sections:**
+
 1. **Project Overview**
+
    - Basic project information
    - Overall progress percentage
    - Timeline and milestones
 
 2. **Block-wise Progress**
+
    - Individual block completion
    - Floor-wise breakdown
    - Unit-wise status
 
 3. **Task Statistics**
+
    - Total/Completed/Pending tasks
    - Priority distribution
    - Overdue task alerts
@@ -202,11 +230,13 @@ Reports → Project Status → Select Project → Generate Report
    - Quality verification images
 
 #### **Client Sharing Process**
+
 ```
 Reports → Generate Report → Make Public → Share Link
 ```
 
 **Sharing Options:**
+
 - **Public Link**: Shareable URL for clients
 - **PDF Export**: Downloadable report
 - **Email Sharing**: Direct email to stakeholders
@@ -217,14 +247,16 @@ Reports → Generate Report → Make Public → Share Link
 #### **Scenario: ABC Township Phase-2 Window Installation**
 
 **Step 1: Project Setup**
+
 ```
 Admin creates "ABC Township Phase-2" project
 ├── 4 Blocks × 40 Floors × 10 Units = 1600 total units
-├── Assigns Sarah Johnson as Project Manager
+├── Assigns Nagarjuna Nitta as Project Manager
 └── Sets timeline: Jan 2024 - Dec 2024
 ```
 
 **Step 2: Task Creation with Dependencies**
+
 ```
 Manager creates task sequence:
 1. Foundation Work - Block A (No dependencies)
@@ -235,16 +267,18 @@ Manager creates task sequence:
 ```
 
 **Step 3: Task Assignment**
+
 ```
 Incharge assigns to Executive:
 ├── Task: "UPVC Window Installation - Block A Floor 1 3BHK Units"
 ├── Location: Block A → Floor 1 → Units 101, 102
-├── Assigned to: Lisa Davis (Executive)
+├── Assigned to: Sai Kumar (Executive)
 ├── Due Date: Feb 25, 2024
 └── Dependencies: Plumbing Rough-in must be completed
 ```
 
 **Step 4: Executive Execution**
+
 ```
 Executive workflow:
 1. Receives task notification
@@ -258,6 +292,7 @@ Executive workflow:
 ```
 
 **Step 5: Progress Tracking**
+
 ```
 System automatically:
 ├── Updates project progress percentage
@@ -268,6 +303,7 @@ System automatically:
 ```
 
 **Step 6: Reporting and Client Updates**
+
 ```
 Manager generates report:
 ├── Block A: 85% complete (Floor 1 finished)
@@ -353,28 +389,33 @@ reports_reportshare        -- Report sharing tracking
 ### **✅ Implemented Features**
 
 1. **User Management**
+
    - Role-based authentication (Admin/Manager/Incharge/Executive)
    - Hierarchical permissions
    - User profile management
 
 2. **Project Management**
+
    - Multi-level project hierarchy (Block/Floor/Unit)
    - Project assignment and tracking
    - Progress visualization
 
 3. **Task Management**
+
    - Comprehensive task creation and assignment
    - Dependency management with visual indicators
    - Kanban board with drag-and-drop
    - File and photo uploads
 
 4. **Gantt Chart**
+
    - Timeline visualization
    - Dependency link display
    - Interactive filtering and zooming
    - Progress overlay
 
 5. **Reporting System**
+
    - Detailed project status reports
    - Client-shareable public links
    - PDF export functionality

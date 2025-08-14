@@ -7,11 +7,11 @@ USE construction_pm;
 
 -- Sample Users Data
 INSERT INTO accounts_user (username, email, first_name, last_name, role, phone, is_active, is_staff, is_superuser, date_joined, password) VALUES
-('admin', 'admin@construct.com', 'John', 'Smith', 'admin', '+1234567890', 1, 1, 1, NOW(), 'pbkdf2_sha256$600000$randomsalt$hashedpassword'),
-('manager1', 'manager@construct.com', 'Sarah', 'Johnson', 'manager', '+1234567891', 1, 0, 0, NOW(), 'pbkdf2_sha256$600000$randomsalt$hashedpassword'),
-('incharge1', 'incharge@construct.com', 'Mike', 'Wilson', 'incharge', '+1234567892', 1, 0, 0, NOW(), 'pbkdf2_sha256$600000$randomsalt$hashedpassword'),
-('executive1', 'executive@construct.com', 'Lisa', 'Davis', 'executive', '+1234567893', 1, 0, 0, NOW(), 'pbkdf2_sha256$600000$randomsalt$hashedpassword'),
-('executive2', 'executive2@construct.com', 'David', 'Brown', 'executive', '+1234567894', 1, 0, 0, NOW(), 'pbkdf2_sha256$600000$randomsalt$hashedpassword');
+('admin', 'admin@construct.com', 'Akhila', 'Neti', 'admin', '+1234567890', 1, 1, 1, NOW(), 'pbkdf2_sha256$600000$randomsalt$hashedpassword'),
+('manager1', 'manager@construct.com', 'Nagarjuna', 'Nitta', 'manager', '+1234567891', 1, 0, 0, NOW(), 'pbkdf2_sha256$600000$randomsalt$hashedpassword'),
+('incharge1', 'incharge@construct.com', 'Sarada', 'Reddy', 'incharge', '+1234567892', 1, 0, 0, NOW(), 'pbkdf2_sha256$600000$randomsalt$hashedpassword'),
+('executive1', 'executive@construct.com', 'Sai', 'Kumar', 'executive', '+1234567893', 1, 0, 0, NOW(), 'pbkdf2_sha256$600000$randomsalt$hashedpassword'),
+('executive2', 'executive2@construct.com', 'Ram', 'Dev', 'executive', '+1234567894', 1, 0, 0, NOW(), 'pbkdf2_sha256$600000$randomsalt$hashedpassword');
 
 -- Sample Projects Data
 INSERT INTO projects_project (name, description, client, location, start_date, end_date, buildings, floors, units, status, progress, manager_id, created_by_id, created_at, updated_at) VALUES
