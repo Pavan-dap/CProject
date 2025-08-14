@@ -217,6 +217,7 @@ const Dashboard: React.FC = () => {
               pagination={{ pageSize: 5 }}
               size="small"
               rowKey="id"
+              scroll={{ x: 600 }}
             />
           </Card>
         </Col>
