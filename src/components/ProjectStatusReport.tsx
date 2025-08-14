@@ -170,9 +170,6 @@ const ProjectStatusReport: React.FC<ProjectStatusReportProps> = ({
     return acc;
   }, {} as Record<string, { total: number; completed: number }>);
 
-  const handlePrint = () => {
-    window.print();
-  };
   const ProjectStatusReport: React.FC = () => {
   return (
     <div>
