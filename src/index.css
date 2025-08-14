@@ -2,28 +2,37 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Remove all scrollbars from layout */
-.ant-layout-sider {
+/* COMPLETELY remove all scrollbars from sidebar */
+.ant-layout-sider,
+.ant-layout-sider *,
+.ant-layout-sider .ant-layout-sider-children,
+.ant-layout-sider .ant-menu,
+.ant-layout-sider .ant-menu-root,
+.ant-layout-sider .ant-menu-inline,
+.ant-layout-sider .ant-menu-item-group,
+.ant-layout-sider .ant-menu-submenu,
+.ant-layout-sider .ant-menu-item {
   overflow: hidden !important;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
 }
 
-.ant-layout-sider .ant-layout-sider-children {
-  overflow: hidden !important;
+.ant-layout-sider::-webkit-scrollbar,
+.ant-layout-sider *::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
 }
 
-.ant-menu {
-  overflow: hidden !important;
-}
-
-.ant-menu-root {
+/* Ensure sidebar content doesn't exceed bounds */
+.ant-layout-sider-children {
+  height: 100vh !important;
+  max-height: 100vh !important;
   overflow: hidden !important;
 }
 
 .ant-menu-inline {
-  overflow: hidden !important;
-}
-
-.ant-layout-sider-children > div {
+  max-height: calc(100vh - 64px) !important;
   overflow: hidden !important;
 }
 
