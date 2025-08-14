@@ -500,7 +500,7 @@ const Tasks: React.FC = () => {
                                       {assignee?.name?.charAt(0) || '?'}
                                     </Avatar>
                                     <span style={{ marginLeft: 4 }}>
-                                      {assignee?.name}
+                                      {assignee?.name || 'Unassigned'}
                                     </span>
                                   </div>
 
