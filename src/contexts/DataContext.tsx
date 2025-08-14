@@ -508,9 +508,14 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const updated = prev.map(task =>
         task.id === id ? { ...task, ...updates } : task
       );
+      const updatedTask = updated.find(t => t.id === id);
+      if (updatedTask) {
+        globalEventBus.taskUpdated(updatedTask);
+      }
+      syncManager.notifyAll();
       return [...updated];
     });
-  }, []);
+  }, [syncManager]);
 
   const addProject = useCallback((project: Omit<Project, 'id'>) => {
     const newProject = { ...project, id: Date.now() };
