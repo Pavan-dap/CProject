@@ -22,6 +22,7 @@ import {
   UserOutlined,
   BellOutlined,
   SettingOutlined,
+  HomeOutlined,
 } from "@ant-design/icons";
 import ProjectStatusReport from "./components/ProjectStatusReport";
 import Login from "./components/Login";
