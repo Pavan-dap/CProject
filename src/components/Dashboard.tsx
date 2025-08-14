@@ -174,8 +174,8 @@ const Dashboard: React.FC = () => {
           </Card>
         </Col>
         <Col xs={24} lg={8}>
-          <Card title="Project Status Distribution" style={{ height: 400 }}>
-            <ResponsiveContainer width="100%" height={300}>
+          <Card title="Project Status Distribution" style={{ height: 'auto', minHeight: 400 }}>
+            <ResponsiveContainer width="100%" height={300} minHeight={200}>
               <PieChart>
                 <Pie
                   data={projectStatusData}
