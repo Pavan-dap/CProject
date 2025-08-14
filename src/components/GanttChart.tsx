@@ -29,6 +29,7 @@ const GanttChart: React.FC = () => {
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
   const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
   const [dateRange, setDateRange] = useState<[dayjs.Dayjs | null, dayjs.Dayjs | null] | null>(null);
+  const [timelineView, setTimelineView] = useState<'week' | 'month' | 'quarter'>('month');
 
   // Filter data based on user role
   let userProjects = user?.role === 'admin'
@@ -127,30 +128,90 @@ const GanttChart: React.FC = () => {
   const { start: timelineStart, end: timelineEnd } = getTimelineBounds();
   const totalDays = timelineEnd.diff(timelineStart, 'days');
 
+  // Generate timeline headers based on view type
+  const generateTimelineHeaders = () => {
+    switch (timelineView) {
+      case 'week':
+        return generateWeekHeaders();
+      case 'quarter':
+        return generateQuarterHeaders();
+      default:
+        return generateMonthHeaders();
+    }
+  };
+
+  // Generate week headers
+  const generateWeekHeaders = () => {
+    const weeks = [];
+    let current = timelineStart.startOf('week');
+
+    while (current.isBefore(timelineEnd)) {
+      const weekEnd = current.endOf('week');
+      const daysInWeek = Math.min(
+        7,
+        timelineEnd.diff(current, 'days') + 1
+      );
+
+      weeks.push({
+        label: `Week ${current.week()} (${current.format('MMM DD')} - ${weekEnd.format('MMM DD')})`,
+        days: daysInWeek,
+        width: (daysInWeek / totalDays) * 100
+      });
+
+      current = current.add(1, 'week');
+    }
+
+    return weeks;
+  };
+
   // Generate month headers
   const generateMonthHeaders = () => {
     const months = [];
     let current = timelineStart.startOf('month');
-    
+
     while (current.isBefore(timelineEnd)) {
       const daysInMonth = Math.min(
         current.daysInMonth(),
         timelineEnd.diff(current, 'days') + 1
       );
-      
+
       months.push({
         label: current.format('MMM YYYY'),
         days: daysInMonth,
         width: (daysInMonth / totalDays) * 100
       });
-      
+
       current = current.add(1, 'month');
     }
-    
+
     return months;
   };
 
-  const monthHeaders = generateMonthHeaders();
+  // Generate quarter headers
+  const generateQuarterHeaders = () => {
+    const quarters = [];
+    let current = timelineStart.startOf('quarter');
+
+    while (current.isBefore(timelineEnd)) {
+      const quarterEnd = current.endOf('quarter');
+      const daysInQuarter = Math.min(
+        quarterEnd.diff(current, 'days') + 1,
+        timelineEnd.diff(current, 'days') + 1
+      );
+
+      quarters.push({
+        label: `Q${current.quarter()} ${current.format('YYYY')} (${current.format('MMM')} - ${quarterEnd.format('MMM')})`,
+        days: daysInQuarter,
+        width: (daysInQuarter / totalDays) * 100
+      });
+
+      current = current.add(1, 'quarter');
+    }
+
+    return quarters;
+  };
+
+  const timelineHeaders = generateTimelineHeaders();
 
   // Calculate bar position and width
   const calculateBarStyle = (item: any) => {
@@ -201,7 +262,11 @@ const GanttChart: React.FC = () => {
           <CalendarOutlined /> Project Timeline (Gantt Chart)
         </Title>
         <Space>
-          <Select defaultValue="month" style={{ width: 120 }}>
+          <Select
+            value={timelineView}
+            onChange={(value) => setTimelineView(value)}
+            style={{ width: 120 }}
+          >
             <Option value="week">Week View</Option>
             <Option value="month">Month View</Option>
             <Option value="quarter">Quarter View</Option>
@@ -344,52 +409,85 @@ const GanttChart: React.FC = () => {
 
             {/* Timeline Header */}
             <div style={{ flex: 1, minWidth: '800px' }}>
-              {/* Month Headers */}
-              <div style={{ 
+              {/* Timeline Headers */}
+              <div style={{
                 display: 'flex',
                 borderBottom: '1px solid #e8e8e8',
                 backgroundColor: '#f5f5f5'
               }}>
-                {monthHeaders.map((month, index) => (
+                {timelineHeaders.map((header, index) => (
                   <div
                     key={index}
                     style={{
-                      width: `${month.width}%`,
+                      width: `${header.width}%`,
                       padding: '8px 4px',
                       textAlign: 'center',
-                      fontSize: '12px',
+                      fontSize: timelineView === 'week' ? '10px' : '12px',
                       fontWeight: 'bold',
-                      borderRight: index < monthHeaders.length - 1 ? '1px solid #e8e8e8' : 'none'
+                      borderRight: index < timelineHeaders.length - 1 ? '1px solid #e8e8e8' : 'none',
+                      minHeight: '32px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
                     }}
                   >
-                    {month.label}
+                    {header.label}
                   </div>
                 ))}
               </div>
 
-              {/* Week Grid */}
-              <div style={{ 
-                display: 'flex',
-                height: '30px',
-                backgroundColor: '#f9f9f9'
-              }}>
-                {Array.from({ length: Math.ceil(totalDays / 7) }, (_, i) => (
-                  <div
-                    key={i}
-                    style={{
-                      width: `${(7 / totalDays) * 100}%`,
-                      borderRight: '1px solid #e8e8e8',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '10px',
-                      color: '#666'
-                    }}
-                  >
-                    W{i + 1}
-                  </div>
-                ))}
-              </div>
+              {/* Sub-grid based on view type */}
+              {timelineView === 'month' && (
+                <div style={{
+                  display: 'flex',
+                  height: '30px',
+                  backgroundColor: '#f9f9f9'
+                }}>
+                  {Array.from({ length: Math.ceil(totalDays / 7) }, (_, i) => (
+                    <div
+                      key={i}
+                      style={{
+                        width: `${(7 / totalDays) * 100}%`,
+                        borderRight: '1px solid #e8e8e8',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '10px',
+                        color: '#666'
+                      }}
+                    >
+                      W{i + 1}
+                    </div>
+                  ))}
+                </div>
+              )}
+              {timelineView === 'quarter' && (
+                <div style={{
+                  display: 'flex',
+                  height: '30px',
+                  backgroundColor: '#f9f9f9'
+                }}>
+                  {Array.from({ length: Math.ceil(totalDays / 30) }, (_, i) => {
+                    const monthStart = timelineStart.add(i * 30, 'day');
+                    return (
+                      <div
+                        key={i}
+                        style={{
+                          width: `${(30 / totalDays) * 100}%`,
+                          borderRight: '1px solid #e8e8e8',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '10px',
+                          color: '#666'
+                        }}
+                      >
+                        {monthStart.format('MMM')}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </div>
 
@@ -461,15 +559,37 @@ const GanttChart: React.FC = () => {
                     bottom: 0,
                     display: 'flex'
                   }}>
-                    {Array.from({ length: Math.ceil(totalDays / 7) }, (_, i) => (
-                      <div
-                        key={i}
-                        style={{
-                          width: `${(7 / totalDays) * 100}%`,
-                          borderRight: '1px solid #f0f0f0'
-                        }}
-                      />
-                    ))}
+                    {timelineView === 'week' ? (
+                      Array.from({ length: totalDays }, (_, i) => (
+                        <div
+                          key={i}
+                          style={{
+                            width: `${(1 / totalDays) * 100}%`,
+                            borderRight: '1px solid #f0f0f0'
+                          }}
+                        />
+                      ))
+                    ) : timelineView === 'quarter' ? (
+                      Array.from({ length: Math.ceil(totalDays / 30) }, (_, i) => (
+                        <div
+                          key={i}
+                          style={{
+                            width: `${(30 / totalDays) * 100}%`,
+                            borderRight: '1px solid #f0f0f0'
+                          }}
+                        />
+                      ))
+                    ) : (
+                      Array.from({ length: Math.ceil(totalDays / 7) }, (_, i) => (
+                        <div
+                          key={i}
+                          style={{
+                            width: `${(7 / totalDays) * 100}%`,
+                            borderRight: '1px solid #f0f0f0'
+                          }}
+                        />
+                      ))
+                    )}
                   </div>
 
                   {/* Progress Bar */}
