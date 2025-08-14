@@ -107,6 +107,8 @@ const Tasks: React.FC = () => {
         addTask(taskData);
       }
 
+      // Force immediate sync across all components
+      forceSync();
       setIsModalVisible(false);
       form.resetFields();
       message.success(editingTask ? 'Task updated successfully' : 'Task created successfully');
