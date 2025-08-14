@@ -214,6 +214,40 @@ const GanttChart: React.FC = () => {
 
       <Card>
         <div style={{ marginBottom: 16 }}>
+          {/* Filter Status */}
+          {(selectedProjectId || selectedStatus || dateRange) && (
+            <div style={{
+              marginBottom: 12,
+              padding: '8px 12px',
+              backgroundColor: '#f6ffed',
+              border: '1px solid #b7eb8f',
+              borderRadius: '4px',
+              fontSize: '12px'
+            }}>
+              <Space>
+                <span>Active Filters:</span>
+                {selectedProjectId && (
+                  <span style={{ background: '#52c41a', color: '#fff', padding: '2px 6px', borderRadius: '2px' }}>
+                    Project: {projects.find(p => p.id === selectedProjectId)?.name}
+                  </span>
+                )}
+                {selectedStatus && (
+                  <span style={{ background: '#1890ff', color: '#fff', padding: '2px 6px', borderRadius: '2px' }}>
+                    Status: {selectedStatus}
+                  </span>
+                )}
+                {dateRange && dateRange[0] && dateRange[1] && (
+                  <span style={{ background: '#722ed1', color: '#fff', padding: '2px 6px', borderRadius: '2px' }}>
+                    Date: {dateRange[0].format('MMM DD')} - {dateRange[1].format('MMM DD')}
+                  </span>
+                )}
+                <span style={{ color: '#666' }}>
+                  | Showing: {userProjects.length} projects, {userTasks.length} tasks
+                </span>
+              </Space>
+            </div>
+          )}
+
           <Row gutter={[16, 16]} align="middle">
             <Col xs={24} sm={6}>
               <Select
