@@ -82,13 +82,6 @@ const Tasks: React.FC = () => {
       ? tasks.filter((t) => t.assignedTo === user.id)
       : tasks.filter((t) => userProjects.some((p) => p.id === t.projectId));
 
-  const mockUsers = [
-    { id: 1, name: "John Smith", role: "admin" },
-    { id: 2, name: "Sarah Johnson", role: "manager" },
-    { id: 3, name: "Mike Wilson", role: "incharge" },
-    { id: 4, name: "Lisa Davis", role: "executive" },
-  ];
-
   const handleAdd = () => {
     setEditingTask(null);
     setIsModalVisible(true);
