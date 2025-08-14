@@ -40,7 +40,7 @@ import {
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { useData, Task } from "../contexts/DataContext";
 import { useAuth } from "../contexts/AuthContext";
-import { useRealTimeSync, useComponentRefresh } from "../hooks/useRealTimeSync";
+import { useRealTimeSync, useComponentRefresh, useUserManagement } from "../hooks/useRealTimeSync";
 import dayjs from "dayjs";
 
 const { Title, Text, Paragraph } = Typography;
