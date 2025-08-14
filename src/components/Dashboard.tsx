@@ -11,12 +11,15 @@ import {
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { useAuth } from '../contexts/AuthContext';
 import { useData } from '../contexts/DataContext';
+import { useRealTimeSync, useRealTimeStats } from '../hooks/useRealTimeSync';
 
 const { Title, Text } = Typography;
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
   const { projects, tasks } = useData();
+  const { syncTrigger } = useRealTimeSync();
+  const realtimeStats = useRealTimeStats();
 
   // Filter data based on user role
   const userProjects = user?.role === 'admin' 
@@ -161,8 +164,8 @@ const Dashboard: React.FC = () => {
 
       <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
         <Col xs={24} lg={16}>
-          <Card title="Project Progress Overview" style={{ height: 400 }}>
-            <ResponsiveContainer width="100%" height={300}>
+          <Card title="Project Progress Overview" style={{ height: 'auto', minHeight: 400 }}>
+            <ResponsiveContainer width="100%" height={300} minHeight={250}>
               <BarChart data={taskProgressData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
@@ -174,8 +177,8 @@ const Dashboard: React.FC = () => {
           </Card>
         </Col>
         <Col xs={24} lg={8}>
-          <Card title="Project Status Distribution" style={{ height: 400 }}>
-            <ResponsiveContainer width="100%" height={300}>
+          <Card title="Project Status Distribution" style={{ height: 'auto', minHeight: 400 }}>
+            <ResponsiveContainer width="100%" height={300} minHeight={200}>
               <PieChart>
                 <Pie
                   data={projectStatusData}
@@ -217,6 +220,7 @@ const Dashboard: React.FC = () => {
               pagination={{ pageSize: 5 }}
               size="small"
               rowKey="id"
+              scroll={{ x: 600 }}
             />
           </Card>
         </Col>

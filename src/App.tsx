@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Layout, Menu, Avatar, Dropdown, Button, Space, Typography, Badge,InputNumber  } from 'antd';
 import { 
   DashboardOutlined, 
@@ -22,6 +22,7 @@ import Users from './components/Users';
 import GanttChart from './components/GanttChart';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { DataProvider } from './contexts/DataContext';
+import { GlobalStateProvider } from './contexts/GlobalStateContext';
 import './styles/App.css';
 
 const { Header, Content, Sider } = Layout;
@@ -83,6 +84,38 @@ const AppContent: React.FC = () => {
   const { user, logout } = useAuth();
   const [activeMenu, setActiveMenu] = useState('dashboard');
   const [collapsed, setCollapsed] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [isTablet, setIsTablet] = useState(false);
+
+  const checkMobile = useCallback(() => {
+    const mobile = window.innerWidth < 768;
+    const tablet = window.innerWidth >= 768 && window.innerWidth < 1024;
+    setIsMobile(mobile);
+    setIsTablet(tablet);
+
+    // Mobile: always collapsed (hidden)
+    // Tablet/Desktop: user controls collapse state
+    if (mobile) {
+      setCollapsed(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, [checkMobile]);
+
+  // Listen for data changes to ensure immediate UI updates
+  useEffect(() => {
+    const handleDataUpdate = () => {
+      // Force re-render on data updates
+      setActiveMenu(prev => prev);
+    };
+
+    window.addEventListener('localStorageChange', handleDataUpdate);
+    return () => window.removeEventListener('localStorageChange', handleDataUpdate);
+  }, []);
 
   if (!user) {
     return <Login />;
@@ -147,46 +180,122 @@ const AppContent: React.FC = () => {
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Sider 
-        collapsible 
-        collapsed={collapsed} 
+      {isMobile && !collapsed && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.45)',
+            zIndex: 999
+          }}
+          onClick={() => setCollapsed(true)}
+        />
+      )}
+      <Sider
+        collapsible
+        collapsed={collapsed}
         onCollapse={setCollapsed}
         theme="light"
         width={240}
+        collapsedWidth={isMobile ? 0 : 80}
+        trigger={!isMobile ? undefined : null}
+        style={{
+          overflow: 'hidden !important',
+          height: '100vh',
+          position: isMobile ? 'fixed' : 'relative',
+          left: 0,
+          top: 0,
+          bottom: 0,
+          zIndex: isMobile ? 1000 : 'auto',
+          boxShadow: isMobile && !collapsed ? '2px 0 8px rgba(0,0,0,0.15)' : 'none',
+          transform: isMobile && collapsed ? 'translateX(-100%)' : 'translateX(0)',
+          transition: 'all 0.3s ease'
+        }}
       >
-        <div style={{ 
-          padding: '16px', 
+        <div style={{
+          padding: collapsed && !isMobile ? '16px 8px' : '16px',
           textAlign: 'center',
-          borderBottom: '1px solid #f0f0f0'
+          borderBottom: '1px solid #f0f0f0',
+          minHeight: '64px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          overflow: 'hidden'
         }}>
           <Title level={4} style={{ margin: 0, color: '#1890ff' }}>
             {collapsed ? 'CPM' : 'ConstructPM'}
           </Title>
         </div>
-        <Menu
-          mode="inline"
-          selectedKeys={[activeMenu]}
-          items={filteredMenuItems.map(item => ({
-            key: item.key,
-            icon: item.icon,
-            label: item.label,
-            onClick: () => setActiveMenu(item.key)
-          }))}
-          style={{ border: 'none' }}
-        />
+        <div style={{
+          height: 'calc(100vh - 64px)',
+          overflow: 'hidden !important',
+          display: 'flex',
+          flexDirection: 'column'
+        }}>
+          <Menu
+            mode="inline"
+            selectedKeys={[activeMenu]}
+            items={filteredMenuItems.map(item => ({
+              key: item.key,
+              icon: item.icon,
+              label: item.label,
+              onClick: () => {
+                setActiveMenu(item.key);
+                // Auto-hide on mobile after selection
+                if (isMobile) {
+                  setCollapsed(true);
+                }
+              }
+            }))}
+            style={{
+              border: 'none',
+              height: '100%',
+              overflow: 'hidden !important',
+              backgroundColor: 'transparent'
+            }}
+          />
+        </div>
       </Sider>
       <Layout>
-        <Header style={{ 
-          padding: '0 24px', 
+        <Header style={{
+          padding: isMobile ? '0 16px' : '0 24px',
           background: '#fff',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          boxShadow: '0 1px 4px rgba(0,21,41,.08)'
+          boxShadow: '0 1px 4px rgba(0,21,41,.08)',
+          position: 'relative',
+          zIndex: 999
         }}>
-          <Title level={3} style={{ margin: 0, color: '#262626' }}>
-            Construction Project Management
-          </Title>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            {isMobile && (
+              <Button
+                type="text"
+                icon={<ProjectOutlined />}
+                onClick={() => setCollapsed(!collapsed)}
+                style={{ fontSize: '16px', marginRight: '8px' }}
+                aria-label="Toggle Menu"
+              />
+            )}
+            {!isMobile && (
+              <Button
+                type="text"
+                icon={collapsed ? <ProjectOutlined /> : <ProjectOutlined />}
+                onClick={() => setCollapsed(!collapsed)}
+                style={{ fontSize: '16px', marginRight: '8px' }}
+                aria-label={collapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
+              />
+            )}
+            <Title
+              level={isMobile ? 4 : 3}
+              style={{ margin: 0, color: '#262626' }}
+            >
+              {isMobile ? 'ConstructPM' : 'Construction Project Management'}
+            </Title>
+          </div>
           <Space size="middle">
             <Badge count={5}>
               <Button type="text" icon={<BellOutlined />} />
@@ -208,10 +317,12 @@ const AppContent: React.FC = () => {
             </Dropdown>
           </Space>
         </Header>
-        <Content style={{ 
-          padding: '24px',
+        <Content style={{
+          padding: isMobile ? '16px' : '24px',
           background: '#f5f5f5',
-          minHeight: 'calc(100vh - 64px)'
+          minHeight: 'calc(100vh - 64px)',
+          marginLeft: 0,
+          transition: 'all 0.2s ease-in-out'
         }}>
           {renderContent()}
         </Content>
@@ -222,11 +333,13 @@ const AppContent: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <AuthProvider>
-      <DataProvider>
-        <AppContent />
-      </DataProvider>
-    </AuthProvider>
+    <GlobalStateProvider>
+      <AuthProvider>
+        <DataProvider>
+          <AppContent />
+        </DataProvider>
+      </AuthProvider>
+    </GlobalStateProvider>
   );
 };
 

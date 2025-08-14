@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { DataSyncManager, globalEventBus, ensureStorageConsistency } from '../utils/integrationSync';
 
 export interface Project {
   id: number;
@@ -315,9 +316,58 @@ const initialTasks: Task[] = [
 ];
 
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [projects, setProjects] = useState<Project[]>(initialProjects);
-  const [tasks, setTasks] = useState<Task[]>(initialTasks);
-  const [comments, setComments] = useState<Comment[]>([]);
+  const syncManager = DataSyncManager.getInstance();
+
+  const [projects, setProjects] = useState<Project[]>(() => {
+    const { projects } = ensureStorageConsistency();
+    return projects.length > 0 ? projects : initialProjects;
+  });
+  const [tasks, setTasks] = useState<Task[]>(() => {
+    const { tasks } = ensureStorageConsistency();
+    return tasks.length > 0 ? tasks : initialTasks;
+  });
+  const [comments, setComments] = useState<Comment[]>(() => {
+    const { comments } = ensureStorageConsistency();
+    return comments;
+  });
+  const [lastUpdate, setLastUpdate] = useState(Date.now());
+
+  // Save to localStorage whenever data changes and broadcast updates
+  const broadcastUpdate = useCallback(() => {
+    setLastUpdate(Date.now());
+    window.dispatchEvent(new CustomEvent('dataUpdate', {
+      detail: { projects, tasks, comments, timestamp: Date.now() }
+    }));
+  }, [projects, tasks, comments]);
+
+  useEffect(() => {
+    localStorage.setItem('construction_projects', JSON.stringify(projects));
+    broadcastUpdate();
+  }, [projects, broadcastUpdate]);
+
+  useEffect(() => {
+    localStorage.setItem('construction_tasks', JSON.stringify(tasks));
+    broadcastUpdate();
+  }, [tasks, broadcastUpdate]);
+
+  useEffect(() => {
+    localStorage.setItem('construction_comments', JSON.stringify(comments));
+    broadcastUpdate();
+  }, [comments, broadcastUpdate]);
+
+  // Listen for external data updates
+  useEffect(() => {
+    const handleExternalUpdate = (event: CustomEvent) => {
+      if (event.detail.timestamp > lastUpdate) {
+        setProjects(event.detail.projects);
+        setTasks(event.detail.tasks);
+        setComments(event.detail.comments);
+      }
+    };
+
+    window.addEventListener('dataUpdate', handleExternalUpdate as EventListener);
+    return () => window.removeEventListener('dataUpdate', handleExternalUpdate as EventListener);
+  }, [lastUpdate]);
 
   const getProjectHierarchy = (projectId: number): ProjectHierarchy => {
     const project = projects.find(p => p.id === projectId);
@@ -428,42 +478,62 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return task?.comments || [];
   };
 
-  const addTaskComment = (taskId: number, comment: Omit<Comment, 'id'>) => {
+  const addTaskComment = useCallback((taskId: number, comment: Omit<Comment, 'id'>) => {
     const newComment = { ...comment, id: Date.now() };
-    setTasks(prev => 
-      prev.map(task => 
-        task.id === taskId 
+    setTasks(prev =>
+      prev.map(task =>
+        task.id === taskId
           ? { ...task, comments: [...(task.comments || []), newComment] }
           : task
       )
     );
-  };
+  }, []);
 
-  const updateProject = (id: number, updates: Partial<Project>) => {
-    setProjects(prev => 
-      prev.map(project => 
+  const updateProject = useCallback((id: number, updates: Partial<Project>) => {
+    setProjects(prev => {
+      const updated = prev.map(project =>
         project.id === id ? { ...project, ...updates } : project
-      )
-    );
-  };
+      );
+      const updatedProject = updated.find(p => p.id === id);
+      if (updatedProject) {
+        globalEventBus.projectUpdated(updatedProject);
+      }
+      syncManager.notifyAll();
+      return [...updated];
+    });
+  }, [syncManager]);
 
-  const updateTask = (id: number, updates: Partial<Task>) => {
-    setTasks(prev => 
-      prev.map(task => 
+  const updateTask = useCallback((id: number, updates: Partial<Task>) => {
+    setTasks(prev => {
+      const updated = prev.map(task =>
         task.id === id ? { ...task, ...updates } : task
-      )
-    );
-  };
+      );
+      const updatedTask = updated.find(t => t.id === id);
+      if (updatedTask) {
+        globalEventBus.taskUpdated(updatedTask);
+      }
+      syncManager.notifyAll();
+      return [...updated];
+    });
+  }, [syncManager]);
 
-  const addProject = (project: Omit<Project, 'id'>) => {
+  const addProject = useCallback((project: Omit<Project, 'id'>) => {
     const newProject = { ...project, id: Date.now() };
-    setProjects(prev => [...prev, newProject]);
-  };
+    setProjects(prev => {
+      globalEventBus.dataUpdated('project', newProject);
+      syncManager.notifyAll();
+      return [...prev, newProject];
+    });
+  }, [syncManager]);
 
-  const addTask = (task: Omit<Task, 'id'>) => {
+  const addTask = useCallback((task: Omit<Task, 'id'>) => {
     const newTask = { ...task, id: Date.now() };
-    setTasks(prev => [...prev, newTask]);
-  };
+    setTasks(prev => {
+      globalEventBus.dataUpdated('task', newTask);
+      syncManager.notifyAll();
+      return [...prev, newTask];
+    });
+  }, [syncManager]);
 
   return (
     <DataContext.Provider value={{

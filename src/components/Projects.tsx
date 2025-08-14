@@ -29,6 +29,7 @@ import {
 } from '@ant-design/icons';
 import { useData, Project } from '../contexts/DataContext';
 import { useAuth } from '../contexts/AuthContext';
+import { useRealTimeSync, useComponentRefresh } from '../hooks/useRealTimeSync';
 import dayjs from 'dayjs';
 
 const { Title, Text } = Typography;
@@ -38,6 +39,8 @@ const { Option } = Select;
 const Projects: React.FC = () => {
   const { user } = useAuth();
   const { projects, updateProject, addProject, tasks } = useData();
+  const { forceSync } = useRealTimeSync();
+  const { refreshKey } = useComponentRefresh();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [form] = Form.useForm();
@@ -79,6 +82,8 @@ const Projects: React.FC = () => {
         addProject(projectData);
       }
 
+      // Force immediate sync across all components
+      forceSync();
       setIsModalVisible(false);
       form.resetFields();
     } catch (error) {
@@ -225,18 +230,20 @@ const Projects: React.FC = () => {
 
   return (
     <div>
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 24
+        marginBottom: 24,
+        flexWrap: 'wrap',
+        gap: '16px'
       }}>
         <Title level={2} style={{ margin: 0 }}>
           Projects Management
         </Title>
         {(user?.role === 'admin' || user?.role === 'manager') && (
-          <Button 
-            type="primary" 
+          <Button
+            type="primary"
             icon={<PlusOutlined />}
             onClick={handleAdd}
           >
@@ -280,11 +287,12 @@ const Projects: React.FC = () => {
           dataSource={userProjects}
           columns={columns}
           rowKey="id"
+          scroll={{ x: 1200 }}
           pagination={{
             pageSize: 10,
             showSizeChanger: true,
             showQuickJumper: true,
-            showTotal: (total, range) => 
+            showTotal: (total, range) =>
               `${range[0]}-${range[1]} of ${total} projects`
           }}
         />

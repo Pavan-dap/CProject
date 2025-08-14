@@ -40,6 +40,7 @@ import {
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { useData, Task } from '../contexts/DataContext';
 import { useAuth } from '../contexts/AuthContext';
+import { useRealTimeSync, useComponentRefresh } from '../hooks/useRealTimeSync';
 import dayjs from 'dayjs';
 
 const { Title, Text, Paragraph } = Typography;
@@ -49,6 +50,8 @@ const { Option } = Select;
 const Tasks: React.FC = () => {
   const { user } = useAuth();
   const { projects, tasks, updateTask, addTask, getTaskDependencies, canStartTask, getTaskComments, addTaskComment } = useData();
+  const { forceSync } = useRealTimeSync();
+  const { refreshKey } = useComponentRefresh();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [viewingTask, setViewingTask] = useState<Task | null>(null);
@@ -104,6 +107,8 @@ const Tasks: React.FC = () => {
         addTask(taskData);
       }
 
+      // Force immediate sync across all components
+      forceSync();
       setIsModalVisible(false);
       form.resetFields();
       message.success(editingTask ? 'Task updated successfully' : 'Task created successfully');
@@ -119,11 +124,30 @@ const Tasks: React.FC = () => {
       'completed': 100,
       'on-hold': 25
     };
-    updateTask(taskId, { 
+    updateTask(taskId, {
       status: newStatus as any,
       progress: progressMap[newStatus as keyof typeof progressMap]
     });
+    // Force immediate sync across all components
+    forceSync();
     message.success('Task status updated');
+  };
+
+  const handleAddComment = () => {
+    if (!newComment.trim() || !viewingTask) return;
+
+    addTaskComment(viewingTask.id, {
+      text: newComment.trim(),
+      userId: user?.id || 1,
+      userName: user?.name || 'Unknown',
+      date: new Date().toISOString(),
+      type: 'comment'
+    });
+
+    setNewComment('');
+    // Force immediate sync across all components
+    forceSync();
+    message.success('Comment added');
   };
 
   const getUserById = (id: number) => {
@@ -485,11 +509,12 @@ const Tasks: React.FC = () => {
             dataSource={userTasks}
             columns={columns}
             rowKey="id"
+            scroll={{ x: 1400 }}
             pagination={{
               pageSize: 10,
               showSizeChanger: true,
               showQuickJumper: true,
-              showTotal: (total, range) => 
+              showTotal: (total, range) =>
                 `${range[0]}-${range[1]} of ${total} tasks`
             }}
           />
