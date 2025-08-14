@@ -430,7 +430,7 @@ const Tasks: React.FC = () => {
                     >
                       {statusTasks.map((task, index) => {
                         const project = getProjectById(task.projectId);
-                        const assignee = getUserById(task.assignedTo);
+                        const assignee = getUser(task.assignedTo);
 
                         return (
                           <Draggable
