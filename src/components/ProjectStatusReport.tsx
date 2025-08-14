@@ -1,31 +1,35 @@
-import React, { useState } from 'react';
-import { 
-  Card, 
-  Typography, 
-  Progress, 
-  Row, 
-  Col, 
-  Table, 
-  Tag, 
-  Button, 
+import React, { useState, useRef } from 'react';
+import {
+  Card,
+  Typography,
+  Progress,
+  Row,
+  Col,
+  Table,
+  Tag,
+  Button,
   Space,
   Statistic,
   Collapse,
   Image,
   Divider,
   Select,
-  DatePicker
+  DatePicker,
+  message
 } from 'antd';
-import { 
-  PrinterOutlined, 
-  DownloadOutlined, 
+import {
+  PrinterOutlined,
+  DownloadOutlined,
   ShareAltOutlined,
   CameraOutlined,
   HomeOutlined,
   CheckCircleOutlined,
   ClockCircleOutlined,
-  ExclamationCircleOutlined
+  ExclamationCircleOutlined,
+  FilePdfOutlined
 } from '@ant-design/icons';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 import { useData, ProjectHierarchy } from '../contexts/DataContext';
 import { useAuth } from '../contexts/AuthContext';
 import dayjs from 'dayjs';
