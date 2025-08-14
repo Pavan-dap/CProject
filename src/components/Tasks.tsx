@@ -242,7 +242,7 @@ const Tasks: React.FC = () => {
         return (
           <div className="task-avatar">
             <Avatar size="small" style={{ backgroundColor: "#1890ff" }}>
-              {assignee?.name.charAt(0)}
+              {assignee?.name?.charAt(0) || '?'}
             </Avatar>
             <div>
               <div style={{ fontSize: "13px" }}>{assignee?.name}</div>
