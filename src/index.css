@@ -15,6 +15,18 @@
   overflow: hidden !important;
 }
 
+.ant-menu-root {
+  overflow: hidden !important;
+}
+
+.ant-menu-inline {
+  overflow: hidden !important;
+}
+
+.ant-layout-sider-children > div {
+  overflow: hidden !important;
+}
+
 /* Mobile-first responsive utilities */
 @media (max-width: 768px) {
   .ant-layout-sider {
