@@ -116,7 +116,7 @@ const initialUsers: User[] = [
     phone: '+1 234-567-8901',
     status: 'active',
     projects: ['All Projects'],
-    joinDate: '2024-01-01'
+    joinDate: '2025-01-01'
   },
   {
     id: 2,
@@ -126,7 +126,7 @@ const initialUsers: User[] = [
     phone: '+1 234-567-8902',
     status: 'active',
     projects: ['ABC Township Phase-2', 'Green Valley Complex'],
-    joinDate: '2024-01-15'
+    joinDate: '2025-01-15'
   },
   {
     id: 3,
@@ -136,7 +136,7 @@ const initialUsers: User[] = [
     phone: '+1 234-567-8903',
     status: 'active',
     projects: ['ABC Township Phase-2'],
-    joinDate: '2024-02-01'
+    joinDate: '2025-02-01'
   },
   {
     id: 4,
@@ -146,7 +146,7 @@ const initialUsers: User[] = [
     phone: '+1 234-567-8904',
     status: 'active',
     projects: ['ABC Township Phase-2', 'Green Valley Complex'],
-    joinDate: '2024-02-15'
+    joinDate: '2025-02-15'
   },
   {
     id: 5,
@@ -156,7 +156,7 @@ const initialUsers: User[] = [
     phone: '+1 234-567-8905',
     status: 'inactive',
     projects: ['Green Valley Complex'],
-    joinDate: '2024-03-01'
+    joinDate: '2025-03-01'
   },
   {
     id: 6,
@@ -166,7 +166,7 @@ const initialUsers: User[] = [
     phone: '+1 234-567-8906',
     status: 'active',
     projects: ['Green Valley Complex'],
-    joinDate: '2024-03-15'
+    joinDate: '2025-03-15'
   },
   {
     id: 7,
@@ -176,7 +176,7 @@ const initialUsers: User[] = [
     phone: '+1 234-567-8907',
     status: 'active',
     projects: ['ABC Township Phase-2'],
-    joinDate: '2024-04-01'
+    joinDate: '2025-04-01'
   },
   {
     id: 8,
@@ -186,7 +186,7 @@ const initialUsers: User[] = [
     phone: '+1 234-567-8908',
     status: 'active',
     projects: ['ABC Township Phase-2'],
-    joinDate: '2024-04-15'
+    joinDate: '2025-04-15'
   }
 ];
 
@@ -197,8 +197,8 @@ const initialProjects: Project[] = [
     name: 'ABC Township Phase-2',
     location: 'Mumbai, Maharashtra',
     client: 'ABC Developers Ltd.',
-    startDate: '2024-01-15',
-    endDate: '2024-12-31',
+    startDate: '2025-03-01',
+    endDate: '2025-09-30',
     buildings: 25,
     floors: 4,
     units: 1000,
@@ -212,8 +212,8 @@ const initialProjects: Project[] = [
     name: 'Green Valley Complex',
     location: 'Pune, Maharashtra',
     client: 'Green Valley Housing',
-    startDate: '2024-03-01',
-    endDate: '2025-02-28',
+    startDate: '2025-04-01',
+    endDate: '2025-09-15',
     buildings: 15,
     floors: 6,
     units: 540,
@@ -235,8 +235,8 @@ const initialTasks: Task[] = [
     status: 'completed',
     progress: 100,
     priority: 'high',
-    dueDate: '2024-01-30',
-    createdDate: '2024-01-20',
+    dueDate: '2025-03-30',
+    createdDate: '2025-03-15',
     building: 'Block A',
     floor: 'Foundation',
     dependencies: [],
@@ -257,8 +257,8 @@ const initialTasks: Task[] = [
     status: 'in-progress',
     progress: 75,
     priority: 'high',
-    dueDate: '2024-03-15',
-    createdDate: '2024-01-25',
+    dueDate: '2025-05-15',
+    createdDate: '2025-03-20',
     building: 'Block A',
     floor: 'Floor 1-5',
     dependencies: [1],
@@ -278,8 +278,8 @@ const initialTasks: Task[] = [
     status: 'not-started',
     progress: 10,
     priority: 'medium',
-    dueDate: '2024-02-20',
-    createdDate: '2024-01-28',
+    dueDate: '2025-04-20',
+    createdDate: '2025-03-25',
     building: 'Block A',
     floor: 'Floor 1',
     unit: 'All Units',
@@ -294,7 +294,7 @@ const initialTasks: Task[] = [
         text: 'Started rough-in work for 3BHK units first',
         userId: 4,
         userName: 'Lisa Davis',
-        date: '2024-02-01',
+        date: '2025-04-01',
         type: 'status_update'
       }
     ]
@@ -309,8 +309,8 @@ const initialTasks: Task[] = [
     status: 'in-progress',
     progress: 40,
     priority: 'high',
-    dueDate: '2024-02-25',
-    createdDate: '2024-02-01',
+    dueDate: '2025-04-25',
+    createdDate: '2025-04-01',
     building: 'Block A',
     floor: 'Floor 1',
     unit: '101, 102, 103, 104',
@@ -327,7 +327,7 @@ const initialTasks: Task[] = [
         text: 'Completed units 101 and 102. Moving to 103 tomorrow.',
         userId: 4,
         userName: 'Lisa Davis',
-        date: '2024-02-10',
+        date: '2025-04-10',
         type: 'status_update'
       },
       {
@@ -335,7 +335,7 @@ const initialTasks: Task[] = [
         text: 'Need coordination with electrical team for unit 104',
         userId: 4,
         userName: 'Lisa Davis',
-        date: '2024-02-11',
+        date: '2025-04-11',
         type: 'comment'
       }
     ]
@@ -350,8 +350,8 @@ const initialTasks: Task[] = [
     status: 'not-started',
     progress: 0,
     priority: 'medium',
-    dueDate: '2024-03-05',
-    createdDate: '2024-02-01',
+    dueDate: '2025-05-05',
+    createdDate: '2025-04-01',
     building: 'Block A',
     floor: 'Floor 1',
     unit: '105, 106, 107, 108, 109, 110',
@@ -371,8 +371,8 @@ const initialTasks: Task[] = [
     status: 'not-started',
     progress: 0,
     priority: 'high',
-    dueDate: '2024-03-10',
-    createdDate: '2024-02-01',
+    dueDate: '2025-05-10',
+    createdDate: '2025-04-01',
     building: 'Block A',
     floor: 'Floor 1',
     unit: 'All Units',
@@ -391,8 +391,8 @@ const initialTasks: Task[] = [
     status: 'completed',
     progress: 100,
     priority: 'high',
-    dueDate: '2024-03-10',
-    createdDate: '2024-03-01',
+    dueDate: '2025-05-10',
+    createdDate: '2025-04-01',
     building: 'Block 1',
     floor: 'Ground Floor'
   },
@@ -406,8 +406,8 @@ const initialTasks: Task[] = [
     status: 'in-progress',
     progress: 60,
     priority: 'high',
-    dueDate: '2024-03-25',
-    createdDate: '2024-03-05',
+    dueDate: '2025-06-25',
+    createdDate: '2025-04-05',
     building: 'Block 1',
     floor: 'Foundation',
     dependencies: [7],

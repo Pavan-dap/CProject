@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Card, Typography, Space, Button, Select, DatePicker, Row, Col } from 'antd';
 import { 
   CalendarOutlined, 
@@ -25,14 +25,52 @@ const GanttChart: React.FC = () => {
   const { projects, tasks } = useData();
   const ganttRef = useRef<HTMLDivElement>(null);
 
+  // Filter states
+  const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
+  const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
+  const [dateRange, setDateRange] = useState<[dayjs.Dayjs | null, dayjs.Dayjs | null] | null>(null);
+
   // Filter data based on user role
-  const userProjects = user?.role === 'admin' 
-    ? projects 
+  let userProjects = user?.role === 'admin'
+    ? projects
     : projects.filter(p => user?.projectIds?.includes(p.id));
 
-  const userTasks = user?.role === 'executive'
+  let userTasks = user?.role === 'executive'
     ? tasks.filter(t => t.assignedTo === user.id)
     : tasks.filter(t => userProjects.some(p => p.id === t.projectId));
+
+  // Apply timeline filters
+  // 1. Project filter - when selected, show only that project
+  if (selectedProjectId) {
+    userProjects = userProjects.filter(p => p.id === selectedProjectId);
+    userTasks = userTasks.filter(t => t.projectId === selectedProjectId);
+  }
+
+  // 2. Status filter - apply to both projects and tasks
+  if (selectedStatus) {
+    userProjects = userProjects.filter(p => p.status === selectedStatus);
+    userTasks = userTasks.filter(t => t.status === selectedStatus);
+  }
+
+  // 3. Date range filter - show items that overlap with selected date range
+  if (dateRange && dateRange[0] && dateRange[1]) {
+    const startDate = dateRange[0];
+    const endDate = dateRange[1];
+
+    userProjects = userProjects.filter(p => {
+      const projectStart = dayjs(p.startDate);
+      const projectEnd = dayjs(p.endDate);
+      // Check if project dates overlap with filter range
+      return projectStart.isBefore(endDate.add(1, 'day')) && projectEnd.isAfter(startDate.subtract(1, 'day'));
+    });
+
+    userTasks = userTasks.filter(t => {
+      const taskStart = dayjs(t.createdDate);
+      const taskEnd = dayjs(t.dueDate);
+      // Check if task dates overlap with filter range
+      return taskStart.isBefore(endDate.add(1, 'day')) && taskEnd.isAfter(startDate.subtract(1, 'day'));
+    });
+  }
 
   // Get task dependencies for visual connections
   const { getTaskDependencies, canStartTask } = useData();
@@ -176,37 +214,94 @@ const GanttChart: React.FC = () => {
 
       <Card>
         <div style={{ marginBottom: 16 }}>
+          {/* Filter Status */}
+          <div style={{
+            marginBottom: 12,
+            padding: '8px 12px',
+            backgroundColor: (selectedProjectId || selectedStatus || dateRange) ? '#f6ffed' : '#f5f5f5',
+            border: (selectedProjectId || selectedStatus || dateRange) ? '1px solid #b7eb8f' : '1px solid #d9d9d9',
+            borderRadius: '4px',
+            fontSize: '12px'
+          }}>
+            <Space>
+              {(selectedProjectId || selectedStatus || dateRange) ? (
+                <>
+                  <span>Active Filters:</span>
+                  {selectedProjectId && (
+                    <span style={{ background: '#52c41a', color: '#fff', padding: '2px 6px', borderRadius: '2px' }}>
+                      Project: {projects.find(p => p.id === selectedProjectId)?.name}
+                    </span>
+                  )}
+                  {selectedStatus && (
+                    <span style={{ background: '#1890ff', color: '#fff', padding: '2px 6px', borderRadius: '2px' }}>
+                      Status: {selectedStatus}
+                    </span>
+                  )}
+                  {dateRange && dateRange[0] && dateRange[1] && (
+                    <span style={{ background: '#722ed1', color: '#fff', padding: '2px 6px', borderRadius: '2px' }}>
+                      Date: {dateRange[0].format('MMM DD')} - {dateRange[1].format('MMM DD')}
+                    </span>
+                  )}
+                </>
+              ) : (
+                <span>No filters applied - showing all data</span>
+              )}
+              <span style={{ color: '#666' }}>
+                | Showing: {userProjects.length} projects, {userTasks.length} tasks
+              </span>
+            </Space>
+          </div>
+
           <Row gutter={[16, 16]} align="middle">
-            <Col xs={24} sm={8}>
+            <Col xs={24} sm={6}>
               <Select
-                placeholder="Filter by Project"
+                placeholder="Filter by Project (All by default)"
                 style={{ width: '100%' }}
                 allowClear
+                value={selectedProjectId}
+                onChange={(value) => setSelectedProjectId(value)}
               >
-                {userProjects.map(project => (
+                {projects.filter(p => user?.role === 'admin' || user?.projectIds?.includes(p.id)).map(project => (
                   <Option key={project.id} value={project.id}>
                     {project.name}
                   </Option>
                 ))}
               </Select>
             </Col>
-            <Col xs={24} sm={8}>
+            <Col xs={24} sm={6}>
               <Select
-                placeholder="Filter by Status"
+                placeholder="Filter by Status (All by default)"
                 style={{ width: '100%' }}
                 allowClear
+                value={selectedStatus}
+                onChange={(value) => setSelectedStatus(value)}
               >
                 <Option value="planning">Planning</Option>
                 <Option value="in-progress">In Progress</Option>
                 <Option value="completed">Completed</Option>
                 <Option value="on-hold">On Hold</Option>
+                <Option value="not-started">Not Started</Option>
               </Select>
             </Col>
-            <Col xs={24} sm={8}>
-              <DatePicker.RangePicker 
+            <Col xs={24} sm={6}>
+              <DatePicker.RangePicker
                 style={{ width: '100%' }}
                 placeholder={['Start Date', 'End Date']}
+                value={dateRange}
+                onChange={(dates) => setDateRange(dates)}
               />
+            </Col>
+            <Col xs={24} sm={6}>
+              <Button
+                onClick={() => {
+                  setSelectedProjectId(null);
+                  setSelectedStatus(null);
+                  setDateRange(null);
+                }}
+                style={{ width: '100%' }}
+              >
+                Clear Filters
+              </Button>
             </Col>
           </Row>
         </div>
