@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { DataSyncManager, globalEventBus, ensureStorageConsistency } from '../utils/integrationSync';
 
 export interface Project {
   id: number;
