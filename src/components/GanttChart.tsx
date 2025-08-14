@@ -461,33 +461,6 @@ const GanttChart: React.FC = () => {
                   ))}
                 </div>
               )}
-              {timelineView === 'week' && (
-                <div style={{
-                  display: 'flex',
-                  height: '30px',
-                  backgroundColor: '#f9f9f9'
-                }}>
-                  {Array.from({ length: totalDays }, (_, i) => {
-                    const date = timelineStart.add(i, 'day');
-                    return (
-                      <div
-                        key={i}
-                        style={{
-                          width: `${(1 / totalDays) * 100}%`,
-                          borderRight: '1px solid #e8e8e8',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontSize: '9px',
-                          color: '#666'
-                        }}
-                      >
-                        {date.format('DD')}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
               {timelineView === 'quarter' && (
                 <div style={{
                   display: 'flex',
