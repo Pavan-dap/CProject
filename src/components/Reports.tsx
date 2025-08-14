@@ -42,6 +42,95 @@ const Reports: React.FC = () => {
   const [selectedProject, setSelectedProject] = useState<number | 'all'>('all');
   const [dateRange, setDateRange] = useState<[dayjs.Dayjs, dayjs.Dayjs] | null>(null);
   const [reportType, setReportType] = useState<'summary' | 'detailed' | 'progress'>('summary');
+  const [isExporting, setIsExporting] = useState(false);
+  const reportRef = useRef<HTMLDivElement>(null);
+
+  // PDF Export Function
+  const exportToPDF = async () => {
+    if (!reportRef.current) return;
+
+    setIsExporting(true);
+    try {
+      const canvas = await html2canvas(reportRef.current, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff'
+      });
+
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgWidth = 210;
+      const pageHeight = 295;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 0;
+
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+
+      const projectName = selectedProject === 'all' ? 'All_Projects' :
+        projects.find(p => p.id === selectedProject)?.name?.replace(/\s+/g, '_') || 'Unknown_Project';
+      const fileName = `${projectName}_Report_${dayjs().format('YYYY-MM-DD')}.pdf`;
+
+      pdf.save(fileName);
+      message.success('Report exported to PDF successfully!');
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      message.error('Failed to export PDF. Please try again.');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  // Print Function
+  const handlePrint = () => {
+    if (!reportRef.current) return;
+
+    const printContent = reportRef.current.innerHTML;
+    const originalContent = document.body.innerHTML;
+
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Construction Project Report</title>
+            <style>
+              body { font-family: Arial, sans-serif; margin: 20px; }
+              .ant-card { border: 1px solid #d9d9d9; border-radius: 6px; margin-bottom: 16px; }
+              .ant-card-head { padding: 16px; border-bottom: 1px solid #f0f0f0; font-weight: bold; }
+              .ant-card-body { padding: 16px; }
+              .ant-table { border: 1px solid #f0f0f0; }
+              .ant-table th, .ant-table td { border: 1px solid #f0f0f0; padding: 8px; }
+              .ant-tag { padding: 2px 8px; border-radius: 4px; font-size: 12px; }
+              .no-print { display: none !important; }
+              @media print {
+                .no-print { display: none !important; }
+                .ant-card { break-inside: avoid; }
+              }
+            </style>
+          </head>
+          <body>
+            <h1>Construction Project Report</h1>
+            <p>Generated on: ${dayjs().format('MMMM DD, YYYY')}</p>
+            <hr/>
+            ${printContent}
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.print();
+      printWindow.close();
+    }
+  };
 
   // Filter data based on user role and filters
   const userProjects = user?.role === 'admin' 
