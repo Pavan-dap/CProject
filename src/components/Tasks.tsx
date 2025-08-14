@@ -163,6 +163,11 @@ const Tasks: React.FC = () => {
     return getUserById(id);
   };
 
+  const handleView = (viewTask: Task) => {
+    setViewingTask(viewTask);
+    setIsViewModalVisible(true);
+  };
+
   const getProjectById = (id: number) => {
     return projects.find((p) => p.id === id);
   };
