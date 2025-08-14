@@ -180,30 +180,6 @@ const ProjectStatusReport: React.FC<ProjectStatusReportProps> = ({
     </div>
   );
 };
-  const handleDownloadPDF = () => {
-    // Simulate PDF download
-    const reportData = {
-      project,
-      hierarchy,
-      statistics: {
-        totalTasks,
-        completedTasks,
-        inProgressTasks,
-        pendingTasks,
-        overdueTasks
-      },
-      generatedDate: reportDate.format('YYYY-MM-DD HH:mm:ss')
-    };
-    
-    const dataStr = JSON.stringify(reportData, null, 2);
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${project.name}-status-report-${reportDate.format('YYYY-MM-DD')}.json`;
-    link.click();
-    URL.revokeObjectURL(url);
-  };
 
   const handleShare = () => {
     const shareUrl = `${window.location.origin}/project-status/${selectedProject}`;
