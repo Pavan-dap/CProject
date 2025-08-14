@@ -374,6 +374,7 @@ const Reports: React.FC = () => {
         dataSource={filteredTasks}
         columns={taskColumns}
         rowKey="id"
+        scroll={{ x: 800 }}
         pagination={{
           pageSize: 10,
           showSizeChanger: true,
