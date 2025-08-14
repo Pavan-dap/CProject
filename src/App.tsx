@@ -360,6 +360,19 @@ const AppContent: React.FC = () => {
             transition: "all 0.2s ease-in-out",
           }}
         >
+          <div style={{
+            marginBottom: 16,
+            padding: "8px 0",
+            background: "#fff",
+            borderRadius: "6px",
+            padding: "12px 16px",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.1)"
+          }}>
+            <Breadcrumb
+              items={getBreadcrumbItems()}
+              style={{ fontSize: "14px" }}
+            />
+          </div>
           {renderContent()}
         </Content>
       </Layout>
