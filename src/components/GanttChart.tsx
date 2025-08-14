@@ -230,7 +230,7 @@ const GanttChart: React.FC = () => {
                 ))}
               </Select>
             </Col>
-            <Col xs={24} sm={8}>
+            <Col xs={24} sm={6}>
               <Select
                 placeholder="Filter by Status"
                 style={{ width: '100%' }}
@@ -245,13 +245,25 @@ const GanttChart: React.FC = () => {
                 <Option value="not-started">Not Started</Option>
               </Select>
             </Col>
-            <Col xs={24} sm={8}>
+            <Col xs={24} sm={6}>
               <DatePicker.RangePicker
                 style={{ width: '100%' }}
                 placeholder={['Start Date', 'End Date']}
                 value={dateRange}
                 onChange={(dates) => setDateRange(dates)}
               />
+            </Col>
+            <Col xs={24} sm={6}>
+              <Button
+                onClick={() => {
+                  setSelectedProjectId(null);
+                  setSelectedStatus(null);
+                  setDateRange(null);
+                }}
+                style={{ width: '100%' }}
+              >
+                Clear Filters
+              </Button>
             </Col>
           </Row>
         </div>
