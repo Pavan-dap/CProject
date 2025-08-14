@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
 export interface Project {
   id: number;
@@ -327,19 +327,44 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const saved = localStorage.getItem('construction_comments');
     return saved ? JSON.parse(saved) : [];
   });
+  const [lastUpdate, setLastUpdate] = useState(Date.now());
 
-  // Save to localStorage whenever data changes
+  // Save to localStorage whenever data changes and broadcast updates
+  const broadcastUpdate = useCallback(() => {
+    setLastUpdate(Date.now());
+    window.dispatchEvent(new CustomEvent('dataUpdate', {
+      detail: { projects, tasks, comments, timestamp: Date.now() }
+    }));
+  }, [projects, tasks, comments]);
+
   useEffect(() => {
     localStorage.setItem('construction_projects', JSON.stringify(projects));
-  }, [projects]);
+    broadcastUpdate();
+  }, [projects, broadcastUpdate]);
 
   useEffect(() => {
     localStorage.setItem('construction_tasks', JSON.stringify(tasks));
-  }, [tasks]);
+    broadcastUpdate();
+  }, [tasks, broadcastUpdate]);
 
   useEffect(() => {
     localStorage.setItem('construction_comments', JSON.stringify(comments));
-  }, [comments]);
+    broadcastUpdate();
+  }, [comments, broadcastUpdate]);
+
+  // Listen for external data updates
+  useEffect(() => {
+    const handleExternalUpdate = (event: CustomEvent) => {
+      if (event.detail.timestamp > lastUpdate) {
+        setProjects(event.detail.projects);
+        setTasks(event.detail.tasks);
+        setComments(event.detail.comments);
+      }
+    };
+
+    window.addEventListener('dataUpdate', handleExternalUpdate as EventListener);
+    return () => window.removeEventListener('dataUpdate', handleExternalUpdate as EventListener);
+  }, [lastUpdate]);
 
   const getProjectHierarchy = (projectId: number): ProjectHierarchy => {
     const project = projects.find(p => p.id === projectId);
@@ -450,53 +475,44 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return task?.comments || [];
   };
 
-  const addTaskComment = (taskId: number, comment: Omit<Comment, 'id'>) => {
+  const addTaskComment = useCallback((taskId: number, comment: Omit<Comment, 'id'>) => {
     const newComment = { ...comment, id: Date.now() };
-    setTasks(prev => {
-      const updated = prev.map(task =>
+    setTasks(prev =>
+      prev.map(task =>
         task.id === taskId
           ? { ...task, comments: [...(task.comments || []), newComment] }
           : task
-      );
-      return [...updated];
-    });
-  };
+      )
+    );
+  }, []);
 
-  const updateProject = (id: number, updates: Partial<Project>) => {
+  const updateProject = useCallback((id: number, updates: Partial<Project>) => {
     setProjects(prev => {
       const updated = prev.map(project =>
         project.id === id ? { ...project, ...updates } : project
       );
-      // Force immediate re-render by creating new array
       return [...updated];
     });
-  };
+  }, []);
 
-  const updateTask = (id: number, updates: Partial<Task>) => {
+  const updateTask = useCallback((id: number, updates: Partial<Task>) => {
     setTasks(prev => {
       const updated = prev.map(task =>
         task.id === id ? { ...task, ...updates } : task
       );
-      // Force immediate re-render by creating new array
       return [...updated];
     });
-  };
+  }, []);
 
-  const addProject = (project: Omit<Project, 'id'>) => {
+  const addProject = useCallback((project: Omit<Project, 'id'>) => {
     const newProject = { ...project, id: Date.now() };
-    setProjects(prev => {
-      const updated = [...prev, newProject];
-      return updated;
-    });
-  };
+    setProjects(prev => [...prev, newProject]);
+  }, []);
 
-  const addTask = (task: Omit<Task, 'id'>) => {
+  const addTask = useCallback((task: Omit<Task, 'id'>) => {
     const newTask = { ...task, id: Date.now() };
-    setTasks(prev => {
-      const updated = [...prev, newTask];
-      return updated;
-    });
-  };
+    setTasks(prev => [...prev, newTask]);
+  }, []);
 
   return (
     <DataContext.Provider value={{
