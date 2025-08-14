@@ -83,6 +83,20 @@ const AppContent: React.FC = () => {
   const { user, logout } = useAuth();
   const [activeMenu, setActiveMenu] = useState('dashboard');
   const [collapsed, setCollapsed] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+      if (window.innerWidth < 768) {
+        setCollapsed(true);
+      }
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   if (!user) {
     return <Login />;
@@ -147,12 +161,24 @@ const AppContent: React.FC = () => {
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Sider 
-        collapsible 
-        collapsed={collapsed} 
+      <Sider
+        collapsible
+        collapsed={collapsed}
         onCollapse={setCollapsed}
         theme="light"
         width={240}
+        breakpoint="lg"
+        collapsedWidth={isMobile ? 0 : 80}
+        trigger={isMobile ? null : undefined}
+        style={{
+          overflow: 'auto',
+          height: '100vh',
+          position: isMobile ? 'fixed' : 'relative',
+          left: 0,
+          top: 0,
+          bottom: 0,
+          zIndex: isMobile ? 1000 : 'auto'
+        }}
       >
         <div style={{ 
           padding: '16px', 
@@ -176,17 +202,32 @@ const AppContent: React.FC = () => {
         />
       </Sider>
       <Layout>
-        <Header style={{ 
-          padding: '0 24px', 
+        <Header style={{
+          padding: isMobile ? '0 16px' : '0 24px',
           background: '#fff',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          boxShadow: '0 1px 4px rgba(0,21,41,.08)'
+          boxShadow: '0 1px 4px rgba(0,21,41,.08)',
+          position: 'relative',
+          zIndex: 999
         }}>
-          <Title level={3} style={{ margin: 0, color: '#262626' }}>
-            Construction Project Management
-          </Title>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            {isMobile && (
+              <Button
+                type="text"
+                icon={collapsed ? <ProjectOutlined /> : <ProjectOutlined />}
+                onClick={() => setCollapsed(!collapsed)}
+                style={{ fontSize: '16px' }}
+              />
+            )}
+            <Title
+              level={isMobile ? 4 : 3}
+              style={{ margin: 0, color: '#262626' }}
+            >
+              {isMobile ? 'ConstructPM' : 'Construction Project Management'}
+            </Title>
+          </div>
           <Space size="middle">
             <Badge count={5}>
               <Button type="text" icon={<BellOutlined />} />
@@ -208,10 +249,12 @@ const AppContent: React.FC = () => {
             </Dropdown>
           </Space>
         </Header>
-        <Content style={{ 
-          padding: '24px',
+        <Content style={{
+          padding: isMobile ? '16px' : '24px',
           background: '#f5f5f5',
-          minHeight: 'calc(100vh - 64px)'
+          minHeight: 'calc(100vh - 64px)',
+          marginLeft: isMobile && !collapsed ? '240px' : 0,
+          transition: 'margin-left 0.2s'
         }}>
           {renderContent()}
         </Content>
