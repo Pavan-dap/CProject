@@ -85,10 +85,16 @@ const AppContent: React.FC = () => {
   const [activeMenu, setActiveMenu] = useState('dashboard');
   const [collapsed, setCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [isTablet, setIsTablet] = useState(false);
 
   const checkMobile = useCallback(() => {
     const mobile = window.innerWidth < 768;
+    const tablet = window.innerWidth >= 768 && window.innerWidth < 1024;
     setIsMobile(mobile);
+    setIsTablet(tablet);
+
+    // Mobile: always collapsed (hidden)
+    // Tablet/Desktop: user controls collapse state
     if (mobile) {
       setCollapsed(true);
     }
@@ -194,28 +200,30 @@ const AppContent: React.FC = () => {
         onCollapse={setCollapsed}
         theme="light"
         width={240}
-        breakpoint="lg"
         collapsedWidth={isMobile ? 0 : 80}
         trigger={!isMobile ? undefined : null}
         style={{
-          overflow: 'hidden',
+          overflow: 'hidden !important',
           height: '100vh',
           position: isMobile ? 'fixed' : 'relative',
           left: 0,
           top: 0,
           bottom: 0,
           zIndex: isMobile ? 1000 : 'auto',
-          boxShadow: isMobile ? '2px 0 8px rgba(0,0,0,0.15)' : 'none'
+          boxShadow: isMobile && !collapsed ? '2px 0 8px rgba(0,0,0,0.15)' : 'none',
+          transform: isMobile && collapsed ? 'translateX(-100%)' : 'translateX(0)',
+          transition: 'all 0.3s ease'
         }}
       >
         <div style={{
-          padding: collapsed ? '16px 8px' : '16px',
+          padding: collapsed && !isMobile ? '16px 8px' : '16px',
           textAlign: 'center',
           borderBottom: '1px solid #f0f0f0',
           minHeight: '64px',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center'
+          justifyContent: 'center',
+          overflow: 'hidden'
         }}>
           <Title level={4} style={{ margin: 0, color: '#1890ff' }}>
             {collapsed ? 'CPM' : 'ConstructPM'}
@@ -223,10 +231,9 @@ const AppContent: React.FC = () => {
         </div>
         <div style={{
           height: 'calc(100vh - 64px)',
-          overflow: 'hidden',
+          overflow: 'hidden !important',
           display: 'flex',
-          flexDirection: 'column',
-          maxHeight: 'calc(100vh - 64px)'
+          flexDirection: 'column'
         }}>
           <Menu
             mode="inline"
@@ -235,14 +242,19 @@ const AppContent: React.FC = () => {
               key: item.key,
               icon: item.icon,
               label: item.label,
-              onClick: () => setActiveMenu(item.key)
+              onClick: () => {
+                setActiveMenu(item.key);
+                // Auto-hide on mobile after selection
+                if (isMobile) {
+                  setCollapsed(true);
+                }
+              }
             }))}
             style={{
               border: 'none',
-              flex: 1,
-              overflow: 'hidden',
-              maxHeight: '100%',
-              height: '100%'
+              height: '100%',
+              overflow: 'hidden !important',
+              backgroundColor: 'transparent'
             }}
           />
         </div>
@@ -266,6 +278,15 @@ const AppContent: React.FC = () => {
                 onClick={() => setCollapsed(!collapsed)}
                 style={{ fontSize: '16px', marginRight: '8px' }}
                 aria-label="Toggle Menu"
+              />
+            )}
+            {!isMobile && (
+              <Button
+                type="text"
+                icon={collapsed ? <ProjectOutlined /> : <ProjectOutlined />}
+                onClick={() => setCollapsed(!collapsed)}
+                style={{ fontSize: '16px', marginRight: '8px' }}
+                aria-label={collapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
               />
             )}
             <Title
