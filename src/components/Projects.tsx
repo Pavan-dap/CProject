@@ -29,6 +29,7 @@ import {
 } from '@ant-design/icons';
 import { useData, Project } from '../contexts/DataContext';
 import { useAuth } from '../contexts/AuthContext';
+import { useRealTimeSync, useComponentRefresh } from '../hooks/useRealTimeSync';
 import dayjs from 'dayjs';
 
 const { Title, Text } = Typography;
