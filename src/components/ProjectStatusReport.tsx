@@ -271,7 +271,7 @@ const ProjectStatusReport: React.FC<ProjectStatusReportProps> = ({
         </div>
       )}
 
-      <div className="print-content">
+      <div className="print-content" ref={reportRef}>
         {/* Header */}
         <Card style={{ marginBottom: 24 }}>
           <Row gutter={[24, 24]} align="middle">
