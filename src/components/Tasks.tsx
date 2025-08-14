@@ -50,6 +50,8 @@ const { Option } = Select;
 const Tasks: React.FC = () => {
   const { user } = useAuth();
   const { projects, tasks, updateTask, addTask, getTaskDependencies, canStartTask, getTaskComments, addTaskComment } = useData();
+  const { forceSync } = useRealTimeSync();
+  const { refreshKey } = useComponentRefresh();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [viewingTask, setViewingTask] = useState<Task | null>(null);
