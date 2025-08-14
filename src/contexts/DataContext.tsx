@@ -519,13 +519,21 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const addProject = useCallback((project: Omit<Project, 'id'>) => {
     const newProject = { ...project, id: Date.now() };
-    setProjects(prev => [...prev, newProject]);
-  }, []);
+    setProjects(prev => {
+      globalEventBus.dataUpdated('project', newProject);
+      syncManager.notifyAll();
+      return [...prev, newProject];
+    });
+  }, [syncManager]);
 
   const addTask = useCallback((task: Omit<Task, 'id'>) => {
     const newTask = { ...task, id: Date.now() };
-    setTasks(prev => [...prev, newTask]);
-  }, []);
+    setTasks(prev => {
+      globalEventBus.dataUpdated('task', newTask);
+      syncManager.notifyAll();
+      return [...prev, newTask];
+    });
+  }, [syncManager]);
 
   return (
     <DataContext.Provider value={{
