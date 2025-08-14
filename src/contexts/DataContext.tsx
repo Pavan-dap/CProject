@@ -43,6 +43,18 @@ export interface Task {
   actualHours?: number;
 }
 
+export interface User {
+  id: number;
+  name: string;
+  email: string;
+  role: 'admin' | 'manager' | 'incharge' | 'executive';
+  phone?: string;
+  status: 'active' | 'inactive';
+  projects: string[];
+  joinDate: string;
+  avatar?: string;
+}
+
 export interface Comment {
   id: number;
   text: string;
@@ -74,6 +86,7 @@ export interface ProjectHierarchy {
 interface DataContextType {
   projects: Project[];
   tasks: Task[];
+  users: User[];
   getProjectHierarchy: (projectId: number) => ProjectHierarchy;
   getTaskDependencies: (taskId: number) => { dependencies: Task[], dependents: Task[] };
   canStartTask: (taskId: number) => boolean;
@@ -83,9 +96,99 @@ interface DataContextType {
   updateTask: (id: number, updates: Partial<Task>) => void;
   addProject: (project: Omit<Project, 'id'>) => void;
   addTask: (task: Omit<Task, 'id'>) => void;
+  updateUser: (id: number, updates: Partial<User>) => void;
+  addUser: (user: Omit<User, 'id'>) => void;
+  deleteUser: (id: number) => void;
+  getUserById: (id: number) => User | undefined;
+  getActiveUsers: () => User[];
+  getUsersByRole: (role: string) => User[];
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
+
+// Sample users data
+const initialUsers: User[] = [
+  {
+    id: 1,
+    name: 'John Smith',
+    email: 'admin@construct.com',
+    role: 'admin',
+    phone: '+1 234-567-8901',
+    status: 'active',
+    projects: ['All Projects'],
+    joinDate: '2024-01-01'
+  },
+  {
+    id: 2,
+    name: 'Sarah Johnson',
+    email: 'manager@construct.com',
+    role: 'manager',
+    phone: '+1 234-567-8902',
+    status: 'active',
+    projects: ['ABC Township Phase-2', 'Green Valley Complex'],
+    joinDate: '2024-01-15'
+  },
+  {
+    id: 3,
+    name: 'Mike Wilson',
+    email: 'incharge@construct.com',
+    role: 'incharge',
+    phone: '+1 234-567-8903',
+    status: 'active',
+    projects: ['ABC Township Phase-2'],
+    joinDate: '2024-02-01'
+  },
+  {
+    id: 4,
+    name: 'Lisa Davis',
+    email: 'executive@construct.com',
+    role: 'executive',
+    phone: '+1 234-567-8904',
+    status: 'active',
+    projects: ['ABC Township Phase-2', 'Green Valley Complex'],
+    joinDate: '2024-02-15'
+  },
+  {
+    id: 5,
+    name: 'David Brown',
+    email: 'executive2@construct.com',
+    role: 'executive',
+    phone: '+1 234-567-8905',
+    status: 'inactive',
+    projects: ['Green Valley Complex'],
+    joinDate: '2024-03-01'
+  },
+  {
+    id: 6,
+    name: 'Emily Carter',
+    email: 'manager2@construct.com',
+    role: 'manager',
+    phone: '+1 234-567-8906',
+    status: 'active',
+    projects: ['Green Valley Complex'],
+    joinDate: '2024-03-15'
+  },
+  {
+    id: 7,
+    name: 'Robert Turner',
+    email: 'incharge2@construct.com',
+    role: 'incharge',
+    phone: '+1 234-567-8907',
+    status: 'active',
+    projects: ['ABC Township Phase-2'],
+    joinDate: '2024-04-01'
+  },
+  {
+    id: 8,
+    name: 'Jessica Lee',
+    email: 'executive3@construct.com',
+    role: 'executive',
+    phone: '+1 234-567-8908',
+    status: 'active',
+    projects: ['ABC Township Phase-2'],
+    joinDate: '2024-04-15'
+  }
+];
 
 // Sample data
 const initialProjects: Project[] = [
@@ -326,6 +429,10 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const { tasks } = ensureStorageConsistency();
     return tasks.length > 0 ? tasks : initialTasks;
   });
+  const [users, setUsers] = useState<User[]>(() => {
+    const { users } = ensureStorageConsistency();
+    return users.length > 0 ? users : initialUsers;
+  });
   const [comments, setComments] = useState<Comment[]>(() => {
     const { comments } = ensureStorageConsistency();
     return comments;
@@ -336,9 +443,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const broadcastUpdate = useCallback(() => {
     setLastUpdate(Date.now());
     window.dispatchEvent(new CustomEvent('dataUpdate', {
-      detail: { projects, tasks, comments, timestamp: Date.now() }
+      detail: { projects, tasks, users, comments, timestamp: Date.now() }
     }));
-  }, [projects, tasks, comments]);
+  }, [projects, tasks, users, comments]);
 
   useEffect(() => {
     localStorage.setItem('construction_projects', JSON.stringify(projects));
@@ -351,6 +458,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [tasks, broadcastUpdate]);
 
   useEffect(() => {
+    localStorage.setItem('construction_users', JSON.stringify(users));
+    broadcastUpdate();
+  }, [users, broadcastUpdate]);
+
+  useEffect(() => {
     localStorage.setItem('construction_comments', JSON.stringify(comments));
     broadcastUpdate();
   }, [comments, broadcastUpdate]);
@@ -361,6 +473,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (event.detail.timestamp > lastUpdate) {
         setProjects(event.detail.projects);
         setTasks(event.detail.tasks);
+        setUsers(event.detail.users);
         setComments(event.detail.comments);
       }
     };
@@ -535,10 +648,56 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
   }, [syncManager]);
 
+  // User management functions
+  const updateUser = useCallback((id: number, updates: Partial<User>) => {
+    setUsers(prev => {
+      const updated = prev.map(user =>
+        user.id === id ? { ...user, ...updates } : user
+      );
+      const updatedUser = updated.find(u => u.id === id);
+      if (updatedUser) {
+        globalEventBus.emit('app:userUpdated', { user: updatedUser, timestamp: Date.now() });
+      }
+      syncManager.notifyAll();
+      return [...updated];
+    });
+  }, [syncManager]);
+
+  const addUser = useCallback((user: Omit<User, 'id'>) => {
+    const newUser = { ...user, id: Date.now() };
+    setUsers(prev => {
+      globalEventBus.dataUpdated('user', newUser);
+      syncManager.notifyAll();
+      return [...prev, newUser];
+    });
+  }, [syncManager]);
+
+  const deleteUser = useCallback((id: number) => {
+    setUsers(prev => {
+      const filtered = prev.filter(user => user.id !== id);
+      globalEventBus.emit('app:userDeleted', { userId: id, timestamp: Date.now() });
+      syncManager.notifyAll();
+      return filtered;
+    });
+  }, [syncManager]);
+
+  const getUserById = useCallback((id: number): User | undefined => {
+    return users.find(user => user.id === id);
+  }, [users]);
+
+  const getActiveUsers = useCallback((): User[] => {
+    return users.filter(user => user.status === 'active');
+  }, [users]);
+
+  const getUsersByRole = useCallback((role: string): User[] => {
+    return users.filter(user => user.role === role && user.status === 'active');
+  }, [users]);
+
   return (
     <DataContext.Provider value={{
       projects,
       tasks,
+      users,
       getProjectHierarchy,
       getTaskDependencies,
       canStartTask,
@@ -547,7 +706,13 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       updateProject,
       updateTask,
       addProject,
-      addTask
+      addTask,
+      updateUser,
+      addUser,
+      deleteUser,
+      getUserById,
+      getActiveUsers,
+      getUsersByRole
     }}>
       {children}
     </DataContext.Provider>
