@@ -58,7 +58,9 @@ const Tasks: React.FC = () => {
     canStartTask,
     getTaskComments,
     addTaskComment,
+    getUserById,
   } = useData();
+  const { assignableUsers } = useUserManagement();
   const { forceSync } = useRealTimeSync();
   const { refreshKey } = useComponentRefresh();
   const [isModalVisible, setIsModalVisible] = useState(false);
