@@ -374,7 +374,7 @@ const ProjectStatusReport: React.FC<ProjectStatusReportProps> = ({
                                 }}
                                 title={`Unit ${unit.unitNumber} (${unit.unitType}) - ${Math.round(unit.completionPercentage)}%`}
                               >
-                                {unit.unitNumber.slice(-1)}
+                                {unit.unitNumber?.slice(-1) || '?'}
                               </div>
                             ))}
                           </div>
