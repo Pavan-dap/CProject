@@ -238,7 +238,7 @@ const Tasks: React.FC = () => {
       title: "Assigned To",
       key: "assignedTo",
       render: (record: Task) => {
-        const assignee = getUserById(record.assignedTo);
+        const assignee = getUser(record.assignedTo);
         return (
           <div className="task-avatar">
             <Avatar size="small" style={{ backgroundColor: "#1890ff" }}>
