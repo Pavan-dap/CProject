@@ -18,6 +18,8 @@ const { Title, Text } = Typography;
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
   const { projects, tasks } = useData();
+  const { syncTrigger } = useRealTimeSync();
+  const realtimeStats = useRealTimeStats();
 
   // Filter data based on user role
   const userProjects = user?.role === 'admin' 
