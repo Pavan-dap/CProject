@@ -31,13 +31,46 @@ const GanttChart: React.FC = () => {
   const [dateRange, setDateRange] = useState<[dayjs.Dayjs | null, dayjs.Dayjs | null] | null>(null);
 
   // Filter data based on user role
-  const userProjects = user?.role === 'admin' 
-    ? projects 
+  let userProjects = user?.role === 'admin'
+    ? projects
     : projects.filter(p => user?.projectIds?.includes(p.id));
 
-  const userTasks = user?.role === 'executive'
+  let userTasks = user?.role === 'executive'
     ? tasks.filter(t => t.assignedTo === user.id)
     : tasks.filter(t => userProjects.some(p => p.id === t.projectId));
+
+  // Apply timeline filters
+  // 1. Project filter - when selected, show only that project
+  if (selectedProjectId) {
+    userProjects = userProjects.filter(p => p.id === selectedProjectId);
+    userTasks = userTasks.filter(t => t.projectId === selectedProjectId);
+  }
+
+  // 2. Status filter - apply to both projects and tasks
+  if (selectedStatus) {
+    userProjects = userProjects.filter(p => p.status === selectedStatus);
+    userTasks = userTasks.filter(t => t.status === selectedStatus);
+  }
+
+  // 3. Date range filter - show items that overlap with selected date range
+  if (dateRange && dateRange[0] && dateRange[1]) {
+    const startDate = dateRange[0];
+    const endDate = dateRange[1];
+
+    userProjects = userProjects.filter(p => {
+      const projectStart = dayjs(p.startDate);
+      const projectEnd = dayjs(p.endDate);
+      // Check if project dates overlap with filter range
+      return projectStart.isBefore(endDate.add(1, 'day')) && projectEnd.isAfter(startDate.subtract(1, 'day'));
+    });
+
+    userTasks = userTasks.filter(t => {
+      const taskStart = dayjs(t.createdDate);
+      const taskEnd = dayjs(t.dueDate);
+      // Check if task dates overlap with filter range
+      return taskStart.isBefore(endDate.add(1, 'day')) && taskEnd.isAfter(startDate.subtract(1, 'day'));
+    });
+  }
 
   // Get task dependencies for visual connections
   const { getTaskDependencies, canStartTask } = useData();
