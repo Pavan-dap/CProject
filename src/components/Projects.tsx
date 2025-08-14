@@ -39,6 +39,8 @@ const { Option } = Select;
 const Projects: React.FC = () => {
   const { user } = useAuth();
   const { projects, updateProject, addProject, tasks } = useData();
+  const { forceSync } = useRealTimeSync();
+  const { refreshKey } = useComponentRefresh();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [form] = Form.useForm();
