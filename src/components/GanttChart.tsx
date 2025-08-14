@@ -220,8 +220,10 @@ const GanttChart: React.FC = () => {
                 placeholder="Filter by Project"
                 style={{ width: '100%' }}
                 allowClear
+                value={selectedProjectId}
+                onChange={(value) => setSelectedProjectId(value)}
               >
-                {userProjects.map(project => (
+                {projects.filter(p => user?.role === 'admin' || user?.projectIds?.includes(p.id)).map(project => (
                   <Option key={project.id} value={project.id}>
                     {project.name}
                   </Option>
@@ -233,17 +235,22 @@ const GanttChart: React.FC = () => {
                 placeholder="Filter by Status"
                 style={{ width: '100%' }}
                 allowClear
+                value={selectedStatus}
+                onChange={(value) => setSelectedStatus(value)}
               >
                 <Option value="planning">Planning</Option>
                 <Option value="in-progress">In Progress</Option>
                 <Option value="completed">Completed</Option>
                 <Option value="on-hold">On Hold</Option>
+                <Option value="not-started">Not Started</Option>
               </Select>
             </Col>
             <Col xs={24} sm={8}>
-              <DatePicker.RangePicker 
+              <DatePicker.RangePicker
                 style={{ width: '100%' }}
                 placeholder={['Start Date', 'End Date']}
+                value={dateRange}
+                onChange={(dates) => setDateRange(dates)}
               />
             </Col>
           </Row>
