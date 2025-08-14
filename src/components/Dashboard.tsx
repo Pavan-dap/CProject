@@ -120,7 +120,7 @@ const Dashboard: React.FC = () => {
       </Title>
 
       <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
-        <Col xs={24} sm={12} lg={6}>
+        <Col xs={24} sm={12} md={6} lg={6} xl={6}>
           <Card>
             <Statistic
               title="Total Projects"
@@ -130,7 +130,7 @@ const Dashboard: React.FC = () => {
             />
           </Card>
         </Col>
-        <Col xs={24} sm={12} lg={6}>
+        <Col xs={24} sm={12} md={6} lg={6} xl={6}>
           <Card>
             <Statistic
               title="Total Tasks"
@@ -140,7 +140,7 @@ const Dashboard: React.FC = () => {
             />
           </Card>
         </Col>
-        <Col xs={24} sm={12} lg={6}>
+        <Col xs={24} sm={12} md={6} lg={6} xl={6}>
           <Card>
             <Statistic
               title="In Progress"
@@ -150,7 +150,7 @@ const Dashboard: React.FC = () => {
             />
           </Card>
         </Col>
-        <Col xs={24} sm={12} lg={6}>
+        <Col xs={24} sm={12} md={6} lg={6} xl={6}>
           <Card>
             <Statistic
               title="Overdue Tasks"
