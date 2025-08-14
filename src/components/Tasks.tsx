@@ -644,15 +644,11 @@ const Tasks: React.FC = () => {
                 rules={[{ required: true, message: "Please select assignee" }]}
               >
                 <Select placeholder="Select assignee">
-                  {mockUsers
-                    .filter(
-                      (u) => u.role === "executive" || u.role === "incharge"
-                    )
-                    .map((user) => (
-                      <Option key={user.id} value={user.id}>
-                        {user.name} ({user.role})
-                      </Option>
-                    ))}
+                  {assignableUsers.map((assignUser) => (
+                    <Option key={assignUser.id} value={assignUser.id}>
+                      {assignUser.name} ({assignUser.role})
+                    </Option>
+                  ))}
                 </Select>
               </Form.Item>
             </Col>
