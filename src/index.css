@@ -2,34 +2,54 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Remove all scrollbars from layout */
+.ant-layout-sider {
+  overflow: hidden !important;
+}
+
+.ant-layout-sider .ant-layout-sider-children {
+  overflow: hidden !important;
+}
+
+.ant-menu {
+  overflow: hidden !important;
+}
+
 /* Mobile-first responsive utilities */
 @media (max-width: 768px) {
   .ant-layout-sider {
     position: fixed !important;
     height: 100vh !important;
     z-index: 1000 !important;
+    overflow: hidden !important;
   }
-  
+
   .ant-layout-sider-collapsed {
     width: 0 !important;
     min-width: 0 !important;
     max-width: 0 !important;
+    overflow: hidden !important;
   }
-  
+
   .ant-table-wrapper {
     overflow-x: auto;
   }
-  
+
   .ant-card {
     margin-bottom: 16px;
   }
-  
+
   .ant-statistic {
     text-align: center;
   }
-  
+
   .ant-dropdown-menu {
     font-size: 14px;
+  }
+
+  .ant-layout-content {
+    width: 100%;
+    margin-left: 0 !important;
   }
 }
 
