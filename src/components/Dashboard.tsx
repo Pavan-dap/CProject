@@ -226,6 +226,38 @@ const Dashboard: React.FC = () => {
         </Col>
         <Col xs={24} lg={8}>
           <Row gutter={[16, 16]}>
+            {user?.role === 'admin' && (
+              <Col xs={24}>
+                <Card title="User Statistics" size="small" style={{ marginBottom: 16 }}>
+                  <Row gutter={[8, 8]}>
+                    <Col xs={12}>
+                      <Statistic
+                        title="Total Users"
+                        value={realtimeStats.totalUsers}
+                        prefix={<UserOutlined />}
+                        style={{ textAlign: 'center' }}
+                      />
+                    </Col>
+                    <Col xs={12}>
+                      <Statistic
+                        title="Active"
+                        value={realtimeStats.activeUsers}
+                        valueStyle={{ color: '#52c41a' }}
+                        style={{ textAlign: 'center' }}
+                      />
+                    </Col>
+                  </Row>
+                  <div style={{ marginTop: 16, textAlign: 'center' }}>
+                    <Space wrap>
+                      <Tag color="#f5222d">Admin: {realtimeStats.usersByRole.admin}</Tag>
+                      <Tag color="#1890ff">Manager: {realtimeStats.usersByRole.manager}</Tag>
+                      <Tag color="#52c41a">Incharge: {realtimeStats.usersByRole.incharge}</Tag>
+                      <Tag color="#fa8c16">Executive: {realtimeStats.usersByRole.executive}</Tag>
+                    </Space>
+                  </div>
+                </Card>
+              </Col>
+            )}
             <Col xs={24}>
               <Card title="Recent Activities" size="small">
                 <List
