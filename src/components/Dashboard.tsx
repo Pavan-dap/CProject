@@ -163,7 +163,7 @@ const Dashboard: React.FC = () => {
       </Row>
 
       <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
-        <Col xs={24} lg={16}>
+        <Col xs={24} md={24} lg={16} xl={16}>
           <Card title="Project Progress Overview" style={{ height: 'auto', minHeight: 400 }}>
             <ResponsiveContainer width="100%" height={300} minHeight={250}>
               <BarChart data={taskProgressData}>
