@@ -179,7 +179,7 @@ const Users: React.FC = () => {
       key: 'projects',
       render: (userProjects: string[]) => (
         <div>
-          {userProjects.slice(0, 2).map(project => (
+          {(userProjects || []).slice(0, 2).map(project => (
             <Tag key={project} style={{ marginBottom: 4 }}>
               {project.length > 20 ? project.substring(0, 20) + '...' : project}
             </Tag>
