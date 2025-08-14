@@ -390,7 +390,7 @@ const ProjectStatusReport: React.FC<ProjectStatusReportProps> = ({
 
         {/* Recent Task Updates with Photos */}
         <Card title="Recent Task Updates" style={{ marginBottom: 24 }}>
-          {projectTasks
+          {(projectTasks || [])
             .filter(task => task.photos && task.photos.length > 0)
             .slice(0, 5)
             .map(task => (
