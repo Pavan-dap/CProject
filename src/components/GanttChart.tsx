@@ -154,7 +154,7 @@ const GanttChart: React.FC = () => {
 
       weeks.push({
         label: `Week ${current.week()} (${current.format('MMM DD')} - ${weekEnd.format('MMM DD')})`,
-        days: daysInWeek,
+        // days: daysInWeek,
         width: (daysInWeek / totalDays) * 100
       });
 
