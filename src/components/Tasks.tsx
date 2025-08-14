@@ -485,11 +485,12 @@ const Tasks: React.FC = () => {
             dataSource={userTasks}
             columns={columns}
             rowKey="id"
+            scroll={{ x: 1400 }}
             pagination={{
               pageSize: 10,
               showSizeChanger: true,
               showQuickJumper: true,
-              showTotal: (total, range) => 
+              showTotal: (total, range) =>
                 `${range[0]}-${range[1]} of ${total} tasks`
             }}
           />
