@@ -452,39 +452,50 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const addTaskComment = (taskId: number, comment: Omit<Comment, 'id'>) => {
     const newComment = { ...comment, id: Date.now() };
-    setTasks(prev => 
-      prev.map(task => 
-        task.id === taskId 
+    setTasks(prev => {
+      const updated = prev.map(task =>
+        task.id === taskId
           ? { ...task, comments: [...(task.comments || []), newComment] }
           : task
-      )
-    );
+      );
+      return [...updated];
+    });
   };
 
   const updateProject = (id: number, updates: Partial<Project>) => {
-    setProjects(prev => 
-      prev.map(project => 
+    setProjects(prev => {
+      const updated = prev.map(project =>
         project.id === id ? { ...project, ...updates } : project
-      )
-    );
+      );
+      // Force immediate re-render by creating new array
+      return [...updated];
+    });
   };
 
   const updateTask = (id: number, updates: Partial<Task>) => {
-    setTasks(prev => 
-      prev.map(task => 
+    setTasks(prev => {
+      const updated = prev.map(task =>
         task.id === id ? { ...task, ...updates } : task
-      )
-    );
+      );
+      // Force immediate re-render by creating new array
+      return [...updated];
+    });
   };
 
   const addProject = (project: Omit<Project, 'id'>) => {
     const newProject = { ...project, id: Date.now() };
-    setProjects(prev => [...prev, newProject]);
+    setProjects(prev => {
+      const updated = [...prev, newProject];
+      return updated;
+    });
   };
 
   const addTask = (task: Omit<Task, 'id'>) => {
     const newTask = { ...task, id: Date.now() };
-    setTasks(prev => [...prev, newTask]);
+    setTasks(prev => {
+      const updated = [...prev, newTask];
+      return updated;
+    });
   };
 
   return (
