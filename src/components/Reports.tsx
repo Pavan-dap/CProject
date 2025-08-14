@@ -509,12 +509,6 @@ const Reports: React.FC = () => {
           >
             Print
           </Button>
-          <Button
-            icon={<FilePdfOutlined />}
-            onClick={() => handleExport('pdf')}
-          >
-            Export PDF
-          </Button>
         </Space>
       </div>
 
