@@ -191,6 +191,22 @@ const AppContent: React.FC = () => {
     return colors[role as keyof typeof colors] || "#666";
   };
 
+  const getBreadcrumbItems = () => {
+    const currentMenuItem = menuItems.find(item => item.key === activeMenu);
+    return [
+      {
+        href: '#',
+        title: <HomeOutlined />,
+        onClick: () => setActiveMenu('dashboard')
+      },
+      {
+        href: '#',
+        title: currentMenuItem?.label || 'Dashboard',
+        onClick: () => {}
+      }
+    ];
+  };
+
   return (
     <Layout style={{ minHeight: "100vh",marginLeft: isMobile ? 0 : collapsed ? 80 : 240, }}>
       {isMobile && !collapsed && (
