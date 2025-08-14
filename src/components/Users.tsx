@@ -330,11 +330,12 @@ const Users: React.FC = () => {
           dataSource={users}
           columns={columns}
           rowKey="id"
+          scroll={{ x: 900 }}
           pagination={{
             pageSize: 10,
             showSizeChanger: true,
             showQuickJumper: true,
-            showTotal: (total, range) => 
+            showTotal: (total, range) =>
               `${range[0]}-${range[1]} of ${total} users`
           }}
         />
