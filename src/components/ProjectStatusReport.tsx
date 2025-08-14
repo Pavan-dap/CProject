@@ -184,8 +184,7 @@ const ProjectStatusReport: React.FC<ProjectStatusReportProps> = ({
   const handleShare = () => {
     const shareUrl = `${window.location.origin}/project-status/${selectedProject}`;
     navigator.clipboard.writeText(shareUrl);
-    // In real app, would show success message
-    console.log('Share URL copied:', shareUrl);
+    message.success('Share URL copied to clipboard!');
   };
 
   const getStatusIcon = (status: string) => {
