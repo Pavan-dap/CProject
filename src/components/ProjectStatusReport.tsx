@@ -419,7 +419,7 @@ const ProjectStatusReport: React.FC<ProjectStatusReportProps> = ({
                   </Col>
                   <Col xs={24} md={8}>
                     <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                      {task.photos?.slice(0, 3).map((photo, index) => (
+                      {(task.photos || []).slice(0, 3).map((photo, index) => (
                         <div key={index} style={{ 
                           width: 60, 
                           height: 60, 
