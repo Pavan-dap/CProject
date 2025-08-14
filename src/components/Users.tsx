@@ -13,7 +13,8 @@ import {
   Avatar,
   Row,
   Col,
-  Statistic
+  Statistic,
+  message
 } from 'antd';
 import { 
   PlusOutlined, 
@@ -25,80 +26,29 @@ import {
   PhoneOutlined
 } from '@ant-design/icons';
 import { useAuth } from '../contexts/AuthContext';
+import { useData, User } from '../contexts/DataContext';
+import { useRealTimeSync, useUserManagement, useComponentRefresh } from '../hooks/useRealTimeSync';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
 
-interface User {
-  id: number;
-  name: string;
-  email: string;
-  role: 'admin' | 'manager' | 'incharge' | 'executive';
-  phone?: string;
-  status: 'active' | 'inactive';
-  projects: string[];
-  joinDate: string;
-}
-
 const Users: React.FC = () => {
   const { user } = useAuth();
+  const { projects } = useData();
+  const { 
+    users, 
+    activeUsers, 
+    usersByRole, 
+    updateUser, 
+    addUser, 
+    deleteUser 
+  } = useUserManagement();
+  const { forceSync } = useRealTimeSync();
+  const { refreshKey } = useComponentRefresh();
+  
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [form] = Form.useForm();
-
-  // Mock users data
-  const [users] = useState<User[]>([
-    {
-      id: 1,
-      name: 'John Smith',
-      email: 'admin@construct.com',
-      role: 'admin',
-      phone: '+1 234-567-8901',
-      status: 'active',
-      projects: ['All Projects'],
-      joinDate: '2024-01-01'
-    },
-    {
-      id: 2,
-      name: 'Sarah Johnson',
-      email: 'manager@construct.com',
-      role: 'manager',
-      phone: '+1 234-567-8902',
-      status: 'active',
-      projects: ['ABC Township Phase-2', 'Green Valley Complex'],
-      joinDate: '2024-01-15'
-    },
-    {
-      id: 3,
-      name: 'Mike Wilson',
-      email: 'incharge@construct.com',
-      role: 'incharge',
-      phone: '+1 234-567-8903',
-      status: 'active',
-      projects: ['ABC Township Phase-2'],
-      joinDate: '2024-02-01'
-    },
-    {
-      id: 4,
-      name: 'Lisa Davis',
-      email: 'executive@construct.com',
-      role: 'executive',
-      phone: '+1 234-567-8904',
-      status: 'active',
-      projects: ['ABC Township Phase-2', 'Green Valley Complex'],
-      joinDate: '2024-02-15'
-    },
-    {
-      id: 5,
-      name: 'David Brown',
-      email: 'executive2@construct.com',
-      role: 'executive',
-      phone: '+1 234-567-8905',
-      status: 'inactive',
-      projects: ['Green Valley Complex'],
-      joinDate: '2024-03-01'
-    }
-  ]);
 
   const getRoleColor = (role: string) => {
     const colors = {
@@ -120,21 +70,54 @@ const Users: React.FC = () => {
     form.resetFields();
   };
 
-  const handleEdit = (user: User) => {
-    setEditingUser(user);
+  const handleEdit = (editUser: User) => {
+    setEditingUser(editUser);
     setIsModalVisible(true);
-    form.setFieldsValue(user);
+    form.setFieldsValue({
+      ...editUser,
+      projects: editUser.projects || []
+    });
+  };
+
+  const handleDelete = (userId: number) => {
+    Modal.confirm({
+      title: 'Delete User',
+      content: 'Are you sure you want to delete this user?',
+      okText: 'Yes',
+      okType: 'danger',
+      cancelText: 'No',
+      onOk() {
+        deleteUser(userId);
+        forceSync();
+        message.success('User deleted successfully');
+      },
+    });
   };
 
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
-      console.log('User data:', values);
-      // In real app, would make API call
+      const userData = {
+        ...values,
+        joinDate: editingUser?.joinDate || new Date().toISOString().split('T')[0],
+        projects: values.projects || []
+      };
+
+      if (editingUser) {
+        updateUser(editingUser.id, userData);
+        message.success('User updated successfully');
+      } else {
+        addUser(userData);
+        message.success('User created successfully');
+      }
+
+      // Force immediate sync across all components
+      forceSync();
       setIsModalVisible(false);
       form.resetFields();
     } catch (error) {
       console.error('Form validation failed:', error);
+      message.error('Please check the form and try again');
     }
   };
 
@@ -194,15 +177,15 @@ const Users: React.FC = () => {
       title: 'Projects',
       dataIndex: 'projects',
       key: 'projects',
-      render: (projects: string[]) => (
+      render: (userProjects: string[]) => (
         <div>
-          {projects.slice(0, 2).map(project => (
+          {userProjects.slice(0, 2).map(project => (
             <Tag key={project} style={{ marginBottom: 4 }}>
               {project.length > 20 ? project.substring(0, 20) + '...' : project}
             </Tag>
           ))}
-          {projects.length > 2 && (
-            <Tag>+{projects.length - 2} more</Tag>
+          {userProjects.length > 2 && (
+            <Tag>+{userProjects.length - 2} more</Tag>
           )}
         </div>
       )
@@ -230,6 +213,7 @@ const Users: React.FC = () => {
               icon={<DeleteOutlined />} 
               size="small"
               danger
+              onClick={() => handleDelete(record.id)}
             />
           )}
         </Space>
@@ -237,18 +221,12 @@ const Users: React.FC = () => {
     }
   ];
 
-  // Statistics
+  // Real-time statistics
   const totalUsers = users.length;
-  const activeUsers = users.filter(u => u.status === 'active').length;
-  const usersByRole = {
-    admin: users.filter(u => u.role === 'admin').length,
-    manager: users.filter(u => u.role === 'manager').length,
-    incharge: users.filter(u => u.role === 'incharge').length,
-    executive: users.filter(u => u.role === 'executive').length
-  };
+  const totalActiveUsers = activeUsers.length;
 
   return (
-    <div>
+    <div key={refreshKey}>
       <div style={{ 
         display: 'flex', 
         justifyContent: 'space-between', 
@@ -283,7 +261,7 @@ const Users: React.FC = () => {
           <Card>
             <Statistic
               title="Active Users"
-              value={activeUsers}
+              value={totalActiveUsers}
               prefix={<UserOutlined />}
               valueStyle={{ color: '#52c41a' }}
             />
@@ -293,7 +271,7 @@ const Users: React.FC = () => {
           <Card>
             <Statistic
               title="Executives"
-              value={usersByRole.executive}
+              value={usersByRole.executive.length}
               prefix={<UserOutlined />}
               valueStyle={{ color: '#fa8c16' }}
             />
@@ -303,7 +281,7 @@ const Users: React.FC = () => {
           <Card>
             <Statistic
               title="Managers"
-              value={usersByRole.manager + usersByRole.incharge}
+              value={usersByRole.manager.length + usersByRole.incharge.length}
               prefix={<UserOutlined />}
               valueStyle={{ color: '#1890ff' }}
             />
@@ -314,13 +292,13 @@ const Users: React.FC = () => {
       <Card>
         <div style={{ marginBottom: 16 }}>
           <Space>
-            {Object.entries(usersByRole).map(([role, count]) => (
+            {Object.entries(usersByRole).map(([role, roleUsers]) => (
               <Tag 
                 key={role}
                 color={getRoleColor(role)}
                 style={{ margin: '2px' }}
               >
-                {role}: {count}
+                {role}: {roleUsers.length}
               </Tag>
             ))}
           </Space>
@@ -348,6 +326,7 @@ const Users: React.FC = () => {
         onCancel={() => setIsModalVisible(false)}
         width={600}
         okText={editingUser ? 'Update' : 'Create'}
+        centered
       >
         <Form
           form={form}
@@ -426,8 +405,11 @@ const Users: React.FC = () => {
               placeholder="Select projects to assign"
               allowClear
             >
-              <Option value="ABC Township Phase-2">ABC Township Phase-2</Option>
-              <Option value="Green Valley Complex">Green Valley Complex</Option>
+              {projects.map(project => (
+                <Option key={project.id} value={project.name}>
+                  {project.name}
+                </Option>
+              ))}
             </Select>
           </Form.Item>
         </Form>
