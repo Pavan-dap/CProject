@@ -497,7 +497,7 @@ const Tasks: React.FC = () => {
                                       size={16}
                                       style={{ backgroundColor: "#1890ff" }}
                                     >
-                                      {assignee?.name.charAt(0)}
+                                      {assignee?.name?.charAt(0) || '?'}
                                     </Avatar>
                                     <span style={{ marginLeft: 4 }}>
                                       {assignee?.name}
