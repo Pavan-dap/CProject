@@ -159,8 +159,8 @@ const Tasks: React.FC = () => {
     message.success("Comment added");
   };
 
-  const getUserById = (id: number) => {
-    return mockUsers.find((u) => u.id === id);
+  const getUser = (id: number) => {
+    return getUserById(id);
   };
 
   const getProjectById = (id: number) => {
