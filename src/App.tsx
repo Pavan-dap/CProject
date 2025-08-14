@@ -225,7 +225,8 @@ const AppContent: React.FC = () => {
           height: 'calc(100vh - 64px)',
           overflow: 'hidden',
           display: 'flex',
-          flexDirection: 'column'
+          flexDirection: 'column',
+          maxHeight: 'calc(100vh - 64px)'
         }}>
           <Menu
             mode="inline"
@@ -239,7 +240,9 @@ const AppContent: React.FC = () => {
             style={{
               border: 'none',
               flex: 1,
-              overflow: 'hidden'
+              overflow: 'hidden',
+              maxHeight: '100%',
+              height: '100%'
             }}
           />
         </div>
