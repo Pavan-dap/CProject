@@ -225,18 +225,20 @@ const Projects: React.FC = () => {
 
   return (
     <div>
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 24
+        marginBottom: 24,
+        flexWrap: 'wrap',
+        gap: '16px'
       }}>
         <Title level={2} style={{ margin: 0 }}>
           Projects Management
         </Title>
         {(user?.role === 'admin' || user?.role === 'manager') && (
-          <Button 
-            type="primary" 
+          <Button
+            type="primary"
             icon={<PlusOutlined />}
             onClick={handleAdd}
           >
