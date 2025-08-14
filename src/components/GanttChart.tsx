@@ -251,7 +251,7 @@ const GanttChart: React.FC = () => {
           <Row gutter={[16, 16]} align="middle">
             <Col xs={24} sm={6}>
               <Select
-                placeholder="Filter by Project"
+                placeholder="Filter by Project (All by default)"
                 style={{ width: '100%' }}
                 allowClear
                 value={selectedProjectId}
