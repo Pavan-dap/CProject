@@ -316,17 +316,19 @@ const initialTasks: Task[] = [
 ];
 
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const syncManager = DataSyncManager.getInstance();
+
   const [projects, setProjects] = useState<Project[]>(() => {
-    const saved = localStorage.getItem('construction_projects');
-    return saved ? JSON.parse(saved) : initialProjects;
+    const { projects } = ensureStorageConsistency();
+    return projects.length > 0 ? projects : initialProjects;
   });
   const [tasks, setTasks] = useState<Task[]>(() => {
-    const saved = localStorage.getItem('construction_tasks');
-    return saved ? JSON.parse(saved) : initialTasks;
+    const { tasks } = ensureStorageConsistency();
+    return tasks.length > 0 ? tasks : initialTasks;
   });
   const [comments, setComments] = useState<Comment[]>(() => {
-    const saved = localStorage.getItem('construction_comments');
-    return saved ? JSON.parse(saved) : [];
+    const { comments } = ensureStorageConsistency();
+    return comments;
   });
   const [lastUpdate, setLastUpdate] = useState(Date.now());
 
