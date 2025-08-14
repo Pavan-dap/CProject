@@ -266,7 +266,7 @@ const GanttChart: React.FC = () => {
             </Col>
             <Col xs={24} sm={6}>
               <Select
-                placeholder="Filter by Status"
+                placeholder="Filter by Status (All by default)"
                 style={{ width: '100%' }}
                 allowClear
                 value={selectedStatus}
