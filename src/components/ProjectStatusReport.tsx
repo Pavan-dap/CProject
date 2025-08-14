@@ -282,7 +282,11 @@ const ProjectStatusReport: React.FC<ProjectStatusReportProps> = ({
             <Button icon={<ShareAltOutlined />} onClick={handleShare}>
               Share
             </Button>
-            <Button icon={<DownloadOutlined />} onClick={handleDownloadPDF}>
+            <Button
+              icon={<FilePdfOutlined />}
+              onClick={exportToPDF}
+              loading={isExporting}
+            >
               Download PDF
             </Button>
             <Button type="primary" icon={<PrinterOutlined />} onClick={handlePrint}>
