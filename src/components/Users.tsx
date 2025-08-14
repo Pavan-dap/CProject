@@ -184,8 +184,8 @@ const Users: React.FC = () => {
               {project.length > 20 ? project.substring(0, 20) + '...' : project}
             </Tag>
           ))}
-          {userProjects.length > 2 && (
-            <Tag>+{userProjects.length - 2} more</Tag>
+          {(userProjects || []).length > 2 && (
+            <Tag>+{(userProjects || []).length - 2} more</Tag>
           )}
         </div>
       )
