@@ -688,16 +688,16 @@ const GanttChart: React.FC = () => {
                   >
                     {timelineView === "week"
                       ? Array.from({ length: totalDays }, (_, i) => (
-                        <div
-                          key={i}
-                          style={{
-                            width: `${(1 / totalDays) * 100}%`,
-                            borderRight: "1px solid #f0f0f0",
-                          }}
-                        />
-                      ))
+                          <div
+                            key={i}
+                            style={{
+                              width: `${(1 / totalDays) * 100}%`,
+                              borderRight: "1px solid #f0f0f0",
+                            }}
+                          />
+                        ))
                       : timelineView === "quarter"
-                        ? Array.from(
+                      ? Array.from(
                           { length: Math.ceil(totalDays / 30) },
                           (_, i) => (
                             <div
@@ -709,7 +709,7 @@ const GanttChart: React.FC = () => {
                             />
                           )
                         )
-                        : Array.from(
+                      : Array.from(
                           { length: Math.ceil(totalDays / 7) },
                           (_, i) => (
                             <div
