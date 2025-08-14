@@ -245,7 +245,7 @@ const Tasks: React.FC = () => {
               {assignee?.name?.charAt(0) || '?'}
             </Avatar>
             <div>
-              <div style={{ fontSize: "13px" }}>{assignee?.name}</div>
+              <div style={{ fontSize: "13px" }}>{assignee?.name || 'Unassigned'}</div>
               <div
                 style={{
                   fontSize: "11px",
@@ -253,7 +253,7 @@ const Tasks: React.FC = () => {
                   textTransform: "capitalize",
                 }}
               >
-                {assignee?.role}
+                {assignee?.role || 'Unknown'}
               </div>
             </div>
           </div>
