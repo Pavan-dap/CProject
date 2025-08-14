@@ -25,6 +25,11 @@ const GanttChart: React.FC = () => {
   const { projects, tasks } = useData();
   const ganttRef = useRef<HTMLDivElement>(null);
 
+  // Filter states
+  const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
+  const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
+  const [dateRange, setDateRange] = useState<[dayjs.Dayjs | null, dayjs.Dayjs | null] | null>(null);
+
   // Filter data based on user role
   const userProjects = user?.role === 'admin' 
     ? projects 
