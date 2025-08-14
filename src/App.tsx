@@ -204,18 +204,6 @@ const AppContent: React.FC = () => {
                 >
                   {user.name?.charAt(0) ?? 'U'}
                 </Avatar>
-                <div>
-                  <div style={{ fontSize: '14px', fontWeight: 500 }}>
-                    {user.name}
-                  </div>
-                  <div style={{ 
-                    fontSize: '12px', 
-                    color: getRoleColor(user.role),
-                    textTransform: 'capitalize'
-                  }}>
-                    {user.role}
-                  </div>
-                </div>
               </Space>
             </Dropdown>
           </Space>
