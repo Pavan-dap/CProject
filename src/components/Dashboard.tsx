@@ -17,7 +17,7 @@ const { Title, Text } = Typography;
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
-  const { projects, tasks } = useData();
+  const { projects, tasks, users } = useData();
   const { syncTrigger } = useRealTimeSync();
   const realtimeStats = useRealTimeStats();
 
