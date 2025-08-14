@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 export interface Project {
   id: number;
@@ -315,9 +315,31 @@ const initialTasks: Task[] = [
 ];
 
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [projects, setProjects] = useState<Project[]>(initialProjects);
-  const [tasks, setTasks] = useState<Task[]>(initialTasks);
-  const [comments, setComments] = useState<Comment[]>([]);
+  const [projects, setProjects] = useState<Project[]>(() => {
+    const saved = localStorage.getItem('construction_projects');
+    return saved ? JSON.parse(saved) : initialProjects;
+  });
+  const [tasks, setTasks] = useState<Task[]>(() => {
+    const saved = localStorage.getItem('construction_tasks');
+    return saved ? JSON.parse(saved) : initialTasks;
+  });
+  const [comments, setComments] = useState<Comment[]>(() => {
+    const saved = localStorage.getItem('construction_comments');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  // Save to localStorage whenever data changes
+  useEffect(() => {
+    localStorage.setItem('construction_projects', JSON.stringify(projects));
+  }, [projects]);
+
+  useEffect(() => {
+    localStorage.setItem('construction_tasks', JSON.stringify(tasks));
+  }, [tasks]);
+
+  useEffect(() => {
+    localStorage.setItem('construction_comments', JSON.stringify(comments));
+  }, [comments]);
 
   const getProjectHierarchy = (projectId: number): ProjectHierarchy => {
     const project = projects.find(p => p.id === projectId);
