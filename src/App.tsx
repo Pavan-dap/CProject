@@ -195,37 +195,53 @@ const AppContent: React.FC = () => {
         width={240}
         breakpoint="lg"
         collapsedWidth={isMobile ? 0 : 80}
-        trigger={isMobile ? null : undefined}
+        trigger={!isMobile ? undefined : null}
         style={{
-          overflow: 'auto',
+          overflow: 'hidden',
           height: '100vh',
           position: isMobile ? 'fixed' : 'relative',
           left: 0,
           top: 0,
           bottom: 0,
-          zIndex: isMobile ? 1000 : 'auto'
+          zIndex: isMobile ? 1000 : 'auto',
+          boxShadow: isMobile ? '2px 0 8px rgba(0,0,0,0.15)' : 'none'
         }}
       >
-        <div style={{ 
-          padding: '16px', 
+        <div style={{
+          padding: collapsed ? '16px 8px' : '16px',
           textAlign: 'center',
-          borderBottom: '1px solid #f0f0f0'
+          borderBottom: '1px solid #f0f0f0',
+          minHeight: '64px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
         }}>
           <Title level={4} style={{ margin: 0, color: '#1890ff' }}>
             {collapsed ? 'CPM' : 'ConstructPM'}
           </Title>
         </div>
-        <Menu
-          mode="inline"
-          selectedKeys={[activeMenu]}
-          items={filteredMenuItems.map(item => ({
-            key: item.key,
-            icon: item.icon,
-            label: item.label,
-            onClick: () => setActiveMenu(item.key)
-          }))}
-          style={{ border: 'none' }}
-        />
+        <div style={{
+          height: 'calc(100vh - 64px)',
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column'
+        }}>
+          <Menu
+            mode="inline"
+            selectedKeys={[activeMenu]}
+            items={filteredMenuItems.map(item => ({
+              key: item.key,
+              icon: item.icon,
+              label: item.label,
+              onClick: () => setActiveMenu(item.key)
+            }))}
+            style={{
+              border: 'none',
+              flex: 1,
+              overflow: 'hidden'
+            }}
+          />
+        </div>
       </Sider>
       <Layout>
         <Header style={{
