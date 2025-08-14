@@ -280,11 +280,12 @@ const Projects: React.FC = () => {
           dataSource={userProjects}
           columns={columns}
           rowKey="id"
+          scroll={{ x: 1200 }}
           pagination={{
             pageSize: 10,
             showSizeChanger: true,
             showQuickJumper: true,
-            showTotal: (total, range) => 
+            showTotal: (total, range) =>
               `${range[0]}-${range[1]} of ${total} projects`
           }}
         />
