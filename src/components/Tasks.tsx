@@ -133,6 +133,23 @@ const Tasks: React.FC = () => {
     message.success('Task status updated');
   };
 
+  const handleAddComment = () => {
+    if (!newComment.trim() || !viewingTask) return;
+
+    addTaskComment(viewingTask.id, {
+      text: newComment.trim(),
+      userId: user?.id || 1,
+      userName: user?.name || 'Unknown',
+      date: new Date().toISOString(),
+      type: 'comment'
+    });
+
+    setNewComment('');
+    // Force immediate sync across all components
+    forceSync();
+    message.success('Comment added');
+  };
+
   const getUserById = (id: number) => {
     return mockUsers.find(u => u.id === id);
   };
