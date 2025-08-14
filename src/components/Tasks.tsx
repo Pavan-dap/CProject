@@ -1,16 +1,16 @@
-import React, { useState } from 'react';
-import { 
-  Card, 
-  Table, 
-  Button, 
-  Tag, 
-  Progress, 
-  Space, 
-  Modal, 
-  Form, 
-  Input, 
-  DatePicker, 
-  Select, 
+import React, { useState } from "react";
+import {
+  Card,
+  Table,
+  Button,
+  Tag,
+  Progress,
+  Space,
+  Modal,
+  Form,
+  Input,
+  DatePicker,
+  Select,
   Typography,
   Row,
   Col,
@@ -19,12 +19,12 @@ import {
   Tabs,
   Upload,
   message,
-  InputNumber
-} from 'antd';
-import { 
-  PlusOutlined, 
-  EditOutlined, 
-  EyeOutlined, 
+  InputNumber,
+} from "antd";
+import {
+  PlusOutlined,
+  EditOutlined,
+  EyeOutlined,
   // DeleteOutlined,
   // UserOutlined,
   CalendarOutlined,
@@ -35,13 +35,13 @@ import {
   ExclamationCircleOutlined,
   LinkOutlined,
   MessageOutlined,
-  CameraOutlined
-} from '@ant-design/icons';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import { useData, Task } from '../contexts/DataContext';
-import { useAuth } from '../contexts/AuthContext';
-import { useRealTimeSync, useComponentRefresh } from '../hooks/useRealTimeSync';
-import dayjs from 'dayjs';
+  CameraOutlined,
+} from "@ant-design/icons";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { useData, Task } from "../contexts/DataContext";
+import { useAuth } from "../contexts/AuthContext";
+import { useRealTimeSync, useComponentRefresh } from "../hooks/useRealTimeSync";
+import dayjs from "dayjs";
 
 const { Title, Text, Paragraph } = Typography;
 const { TextArea } = Input;
@@ -49,31 +49,42 @@ const { Option } = Select;
 
 const Tasks: React.FC = () => {
   const { user } = useAuth();
-  const { projects, tasks, updateTask, addTask, getTaskDependencies, canStartTask, getTaskComments, addTaskComment } = useData();
+  const {
+    projects,
+    tasks,
+    updateTask,
+    addTask,
+    getTaskDependencies,
+    canStartTask,
+    getTaskComments,
+    addTaskComment,
+  } = useData();
   const { forceSync } = useRealTimeSync();
   const { refreshKey } = useComponentRefresh();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [viewingTask, setViewingTask] = useState<Task | null>(null);
   const [isViewModalVisible, setIsViewModalVisible] = useState(false);
-  const [viewType, setViewType] = useState<'table' | 'kanban'>('table');
-  const [newComment, setNewComment] = useState('');
+  const [viewType, setViewType] = useState<"table" | "kanban">("table");
+  const [newComment, setNewComment] = useState("");
   const [form] = Form.useForm();
 
   // Filter tasks based on user role
-  const userProjects = user?.role === 'admin' 
-    ? projects 
-    : projects.filter(p => user?.projectIds?.includes(p.id));
+  const userProjects =
+    user?.role === "admin"
+      ? projects
+      : projects.filter((p) => user?.projectIds?.includes(p.id));
 
-  const userTasks = user?.role === 'executive'
-    ? tasks.filter(t => t.assignedTo === user.id)
-    : tasks.filter(t => userProjects.some(p => p.id === t.projectId));
+  const userTasks =
+    user?.role === "executive"
+      ? tasks.filter((t) => t.assignedTo === user.id)
+      : tasks.filter((t) => userProjects.some((p) => p.id === t.projectId));
 
   const mockUsers = [
-    { id: 1, name: 'John Smith', role: 'admin' },
-    { id: 2, name: 'Sarah Johnson', role: 'manager' },
-    { id: 3, name: 'Mike Wilson', role: 'incharge' },
-    { id: 4, name: 'Lisa Davis', role: 'executive' }
+    { id: 1, name: "John Smith", role: "admin" },
+    { id: 2, name: "Sarah Johnson", role: "manager" },
+    { id: 3, name: "Mike Wilson", role: "incharge" },
+    { id: 4, name: "Lisa Davis", role: "executive" },
   ];
 
   const handleAdd = () => {
@@ -87,7 +98,7 @@ const Tasks: React.FC = () => {
     setIsModalVisible(true);
     form.setFieldsValue({
       ...task,
-      dueDate: dayjs(task.dueDate)
+      dueDate: dayjs(task.dueDate),
     });
   };
 
@@ -96,9 +107,10 @@ const Tasks: React.FC = () => {
       const values = await form.validateFields();
       const taskData = {
         ...values,
-        dueDate: values.dueDate.format('YYYY-MM-DD'),
-        createdDate: editingTask?.createdDate || new Date().toISOString().split('T')[0],
-        assignedBy: user?.id || 1
+        dueDate: values.dueDate.format("YYYY-MM-DD"),
+        createdDate:
+          editingTask?.createdDate || new Date().toISOString().split("T")[0],
+        assignedBy: user?.id || 1,
       };
 
       if (editingTask) {
@@ -111,26 +123,28 @@ const Tasks: React.FC = () => {
       forceSync();
       setIsModalVisible(false);
       form.resetFields();
-      message.success(editingTask ? 'Task updated successfully' : 'Task created successfully');
+      message.success(
+        editingTask ? "Task updated successfully" : "Task created successfully"
+      );
     } catch (error) {
-      console.error('Form validation failed:', error);
+      console.error("Form validation failed:", error);
     }
   };
 
   const handleStatusChange = (taskId: number, newStatus: string) => {
     const progressMap = {
-      'not-started': 0,
-      'in-progress': 50,
-      'completed': 100,
-      'on-hold': 25
+      "not-started": 0,
+      "in-progress": 50,
+      completed: 100,
+      "on-hold": 25,
     };
     updateTask(taskId, {
       status: newStatus as any,
-      progress: progressMap[newStatus as keyof typeof progressMap]
+      progress: progressMap[newStatus as keyof typeof progressMap],
     });
     // Force immediate sync across all components
     forceSync();
-    message.success('Task status updated');
+    message.success("Task status updated");
   };
 
   const handleAddComment = () => {
@@ -139,209 +153,236 @@ const Tasks: React.FC = () => {
     addTaskComment(viewingTask.id, {
       text: newComment.trim(),
       userId: user?.id || 1,
-      userName: user?.name || 'Unknown',
+      userName: user?.name || "Unknown",
       date: new Date().toISOString(),
-      type: 'comment'
+      type: "comment",
     });
 
-    setNewComment('');
+    setNewComment("");
     // Force immediate sync across all components
     forceSync();
-    message.success('Comment added');
+    message.success("Comment added");
   };
 
   const getUserById = (id: number) => {
-    return mockUsers.find(u => u.id === id);
+    return mockUsers.find((u) => u.id === id);
   };
 
   const getProjectById = (id: number) => {
-    return projects.find(p => p.id === id);
+    return projects.find((p) => p.id === id);
   };
 
   const getPriorityColor = (priority: string) => {
-    const colors = { high: 'red', medium: 'orange', low: 'blue' };
-    return colors[priority as keyof typeof colors] || 'blue';
+    const colors = { high: "red", medium: "orange", low: "blue" };
+    return colors[priority as keyof typeof colors] || "blue";
   };
 
   const getStatusColor = (status: string) => {
     const colors = {
-      'not-started': 'default',
-      'in-progress': 'processing',
-      'completed': 'success',
-      'on-hold': 'warning'
+      "not-started": "default",
+      "in-progress": "processing",
+      completed: "success",
+      "on-hold": "warning",
     };
-    return colors[status as keyof typeof colors] || 'default';
+    return colors[status as keyof typeof colors] || "default";
   };
 
   // Table columns
   const columns = [
     {
-      title: 'Task',
-      key: 'task',
+      title: "Task",
+      key: "task",
       render: (record: Task) => {
         const project = getProjectById(record.projectId);
         const { dependencies, dependents } = getTaskDependencies(record.id);
         const canStart = canStartTask(record.id);
-        
+
         return (
           <div>
             <Title level={5} style={{ margin: 0 }}>
               {record.title}
               {dependencies.length > 0 && (
-                <LinkOutlined style={{ marginLeft: 8, color: '#1890ff' }} />
+                <LinkOutlined style={{ marginLeft: 8, color: "#1890ff" }} />
               )}
-              {!canStart && record.status === 'not-started' && (
-                <ExclamationCircleOutlined style={{ marginLeft: 8, color: '#faad14' }} />
+              {!canStart && record.status === "not-started" && (
+                <ExclamationCircleOutlined
+                  style={{ marginLeft: 8, color: "#faad14" }}
+                />
               )}
             </Title>
-            <Text type="secondary" style={{ fontSize: '12px' }}>
+            <Text type="secondary" style={{ fontSize: "12px" }}>
               {project?.name}
             </Text>
             {record.building && (
-              <div style={{ fontSize: '11px', color: '#999' }}>
-                {record.building} {record.floor && `• ${record.floor}`} {record.unit && `• ${record.unit}`} {record.unitType && `• ${record.unitType}`}
+              <div style={{ fontSize: "11px", color: "#999" }}>
+                {record.building} {record.floor && `• ${record.floor}`}{" "}
+                {record.unit && `• ${record.unit}`}{" "}
+                {record.unitType && `• ${record.unitType}`}
               </div>
             )}
             {dependencies.length > 0 && (
-              <div style={{ fontSize: '10px', color: '#666', marginTop: 2 }}>
-                Depends on: {dependencies.map(d => d.title).join(', ').substring(0, 50)}...
+              <div style={{ fontSize: "10px", color: "#666", marginTop: 2 }}>
+                Depends on:{" "}
+                {dependencies
+                  .map((d) => d.title)
+                  .join(", ")
+                  .substring(0, 50)}
+                ...
               </div>
             )}
           </div>
         );
-      }
+      },
     },
     {
-      title: 'Assigned To',
-      key: 'assignedTo',
+      title: "Assigned To",
+      key: "assignedTo",
       render: (record: Task) => {
         const assignee = getUserById(record.assignedTo);
         return (
           <div className="task-avatar">
-            <Avatar size="small" style={{ backgroundColor: '#1890ff' }}>
+            <Avatar size="small" style={{ backgroundColor: "#1890ff" }}>
               {assignee?.name.charAt(0)}
             </Avatar>
             <div>
-              <div style={{ fontSize: '13px' }}>{assignee?.name}</div>
-              <div style={{ fontSize: '11px', color: '#999', textTransform: 'capitalize' }}>
+              <div style={{ fontSize: "13px" }}>{assignee?.name}</div>
+              <div
+                style={{
+                  fontSize: "11px",
+                  color: "#999",
+                  textTransform: "capitalize",
+                }}
+              >
                 {assignee?.role}
               </div>
             </div>
           </div>
         );
-      }
+      },
     },
     {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
       render: (status: string) => (
         <Tag color={getStatusColor(status)}>
-          {status.replace('-', ' ').toUpperCase()}
+          {status.replace("-", " ").toUpperCase()}
         </Tag>
-      )
+      ),
     },
     {
-      title: 'Priority',
-      dataIndex: 'priority',
-      key: 'priority',
+      title: "Priority",
+      dataIndex: "priority",
+      key: "priority",
       render: (priority: string) => (
-        <Tag color={getPriorityColor(priority)}>
-          {priority.toUpperCase()}
-        </Tag>
-      )
+        <Tag color={getPriorityColor(priority)}>{priority.toUpperCase()}</Tag>
+      ),
     },
     {
-      title: 'Progress',
-      dataIndex: 'progress',
-      key: 'progress',
+      title: "Progress",
+      dataIndex: "progress",
+      key: "progress",
       render: (progress: number) => (
-        <Progress 
-          percent={progress} 
-          size="small" 
-          status={progress === 100 ? 'success' : 'active'}
+        <Progress
+          percent={progress}
+          size="small"
+          status={progress === 100 ? "success" : "active"}
         />
-      )
+      ),
     },
     {
-      title: 'Due Date',
-      dataIndex: 'dueDate',
-      key: 'dueDate',
+      title: "Due Date",
+      dataIndex: "dueDate",
+      key: "dueDate",
       render: (date: string) => {
         const isOverdue = new Date(date) < new Date();
         return (
-          <div style={{ color: isOverdue ? '#f5222d' : 'inherit' }}>
-            <CalendarOutlined /> {dayjs(date).format('MMM DD, YYYY')}
+          <div style={{ color: isOverdue ? "#f5222d" : "inherit" }}>
+            <CalendarOutlined /> {dayjs(date).format("MMM DD, YYYY")}
             {isOverdue && (
-              <div style={{ fontSize: '11px', color: '#f5222d' }}>
-                Overdue
-              </div>
+              <div style={{ fontSize: "11px", color: "#f5222d" }}>Overdue</div>
             )}
           </div>
         );
-      }
+      },
     },
     {
-      title: 'Actions',
-      key: 'actions',
+      title: "Actions",
+      key: "actions",
       render: (record: Task) => (
         <Space size="small">
           <Tooltip title="View Details">
-            <Button 
-              type="text" 
-              icon={<EyeOutlined />} 
+            <Button
+              type="text"
+              icon={<EyeOutlined />}
               size="small"
               onClick={() => handleView(record)}
             />
           </Tooltip>
           <Tooltip title="Edit Task">
-            <Button 
-              type="text" 
-              icon={<EditOutlined />} 
+            <Button
+              type="text"
+              icon={<EditOutlined />}
               size="small"
               onClick={() => handleEdit(record)}
             />
           </Tooltip>
           {record.comments && record.comments.length > 0 && (
             <Tooltip title={`${record.comments.length} Comments`}>
-              <Button 
-                type="text" 
-                icon={<MessageOutlined />} 
+              <Button
+                type="text"
+                icon={<MessageOutlined />}
                 size="small"
                 onClick={() => handleView(record)}
-                style={{ color: '#1890ff' }}
+                style={{ color: "#1890ff" }}
               />
             </Tooltip>
           )}
-          {record.status !== 'completed' && user?.role !== 'executive' && (
+          {record.status !== "completed" && user?.role !== "executive" && (
             <Tooltip title="Mark Complete">
-              <Button 
-                type="text" 
-                icon={<CheckOutlined />} 
+              <Button
+                type="text"
+                icon={<CheckOutlined />}
                 size="small"
-                onClick={() => handleStatusChange(record.id, 'completed')}
-                style={{ color: '#52c41a' }}
+                onClick={() => handleStatusChange(record.id, "completed")}
+                style={{ color: "#52c41a" }}
               />
             </Tooltip>
           )}
         </Space>
-      )
-    }
+      ),
+    },
   ];
 
   // Kanban View
   const statusColumns = {
-    'not-started': { title: 'Not Started', color: '#d9d9d9', icon: <ExclamationCircleOutlined /> },
-    'in-progress': { title: 'In Progress', color: '#1890ff', icon: <ClockCircleOutlined /> },
-    'completed': { title: 'Completed', color: '#52c41a', icon: <CheckOutlined /> },
-    'on-hold': { title: 'On Hold', color: '#faad14', icon: <ExclamationCircleOutlined /> }
+    "not-started": {
+      title: "Not Started",
+      color: "#d9d9d9",
+      icon: <ExclamationCircleOutlined />,
+    },
+    "in-progress": {
+      title: "In Progress",
+      color: "#1890ff",
+      icon: <ClockCircleOutlined />,
+    },
+    completed: {
+      title: "Completed",
+      color: "#52c41a",
+      icon: <CheckOutlined />,
+    },
+    "on-hold": {
+      title: "On Hold",
+      color: "#faad14",
+      icon: <ExclamationCircleOutlined />,
+    },
   };
 
   const onDragEnd = (result: any) => {
     if (!result.destination) return;
-    
+
     const { source, destination, draggableId } = result;
-    
+
     if (source.droppableId !== destination.droppableId) {
       handleStatusChange(parseInt(draggableId), destination.droppableId);
     }
@@ -349,17 +390,24 @@ const Tasks: React.FC = () => {
 
   const renderKanbanView = () => (
     <DragDropContext onDragEnd={onDragEnd}>
-      <Row gutter={[16, 16]} style={{ height: 'calc(100vh - 300px)', overflowX: 'auto' }}>
+      <Row
+        gutter={[16, 16]}
+        style={{ height: "calc(100vh - 300px)", overflowX: "auto" }}
+      >
         {Object.entries(statusColumns).map(([status, config]) => {
-          const statusTasks = userTasks.filter(task => task.status === status);
-          
+          const statusTasks = userTasks.filter(
+            (task) => task.status === status
+          );
+
           return (
             <Col key={status} xs={24} sm={12} lg={6}>
-              <Card 
-                size="small" 
+              <Card
+                size="small"
                 className="kanban-column"
                 title={
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div
+                    style={{ display: "flex", alignItems: "center", gap: 8 }}
+                  >
                     {config.icon}
                     {config.title}
                     <Tag color={config.color}>{statusTasks.length}</Tag>
@@ -373,15 +421,17 @@ const Tasks: React.FC = () => {
                       {...provided.droppableProps}
                       style={{
                         minHeight: 400,
-                        background: snapshot.isDraggingOver ? '#f0f9ff' : 'transparent',
+                        background: snapshot.isDraggingOver
+                          ? "#f0f9ff"
+                          : "transparent",
                         borderRadius: 8,
-                        padding: 8
+                        padding: 8,
                       }}
                     >
                       {statusTasks.map((task, index) => {
                         const project = getProjectById(task.projectId);
                         const assignee = getUserById(task.assignedTo);
-                        
+
                         return (
                           <Draggable
                             key={task.id}
@@ -397,61 +447,80 @@ const Tasks: React.FC = () => {
                                 className={`kanban-card ${task.status}`}
                                 style={{
                                   marginBottom: 12,
-                                  cursor: 'pointer',
-                                  transform: snapshot.isDragging ? 'rotate(5deg)' : 'none',
-                                  ...provided.draggableProps.style
+                                  cursor: "pointer",
+                                  transform: snapshot.isDragging
+                                    ? "rotate(5deg)"
+                                    : "none",
+                                  ...provided.draggableProps.style,
                                 }}
                                 hoverable
                                 onClick={() => handleEdit(task)}
                               >
                                 <div style={{ marginBottom: 8 }}>
-                                  <Text strong style={{ fontSize: '13px', display: 'block' }}>
-                                    {task.title.length > 50 
-                                      ? task.title.substring(0, 50) + '...' 
-                                      : task.title
-                                    }
+                                  <Text
+                                    strong
+                                    style={{
+                                      fontSize: "13px",
+                                      display: "block",
+                                    }}
+                                  >
+                                    {task.title.length > 50
+                                      ? task.title.substring(0, 50) + "..."
+                                      : task.title}
                                   </Text>
-                                  <Text type="secondary" style={{ fontSize: '11px' }}>
+                                  <Text
+                                    type="secondary"
+                                    style={{ fontSize: "11px" }}
+                                  >
                                     {project?.name}
                                   </Text>
                                 </div>
-                                
+
                                 <div style={{ marginBottom: 8 }}>
-                                  <Progress 
-                                    percent={task.progress} 
-                                    size="small" 
+                                  <Progress
+                                    percent={task.progress}
+                                    size="small"
                                     showInfo={false}
                                   />
                                 </div>
-                                
-                                <div style={{ 
-                                  display: 'flex', 
-                                  justifyContent: 'space-between', 
-                                  alignItems: 'center',
-                                  fontSize: '11px'
-                                }}>
+
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    alignItems: "center",
+                                    fontSize: "11px",
+                                  }}
+                                >
                                   <div className="task-avatar">
-                                    <Avatar size={16} style={{ backgroundColor: '#1890ff' }}>
+                                    <Avatar
+                                      size={16}
+                                      style={{ backgroundColor: "#1890ff" }}
+                                    >
                                       {assignee?.name.charAt(0)}
                                     </Avatar>
-                                    <span style={{ marginLeft: 4 }}>{assignee?.name}</span>
+                                    <span style={{ marginLeft: 4 }}>
+                                      {assignee?.name}
+                                    </span>
                                   </div>
-                                  
-                                  <Tag 
-                                    color={getPriorityColor(task.priority)} 
+
+                                  <Tag
+                                    color={getPriorityColor(task.priority)}
                                     size="small"
                                   >
                                     {task.priority}
                                   </Tag>
                                 </div>
-                                
-                                <div style={{ 
-                                  fontSize: '10px', 
-                                  color: '#999', 
-                                  marginTop: 4,
-                                  textAlign: 'right'
-                                }}>
-                                  Due: {dayjs(task.dueDate).format('MMM DD')}
+
+                                <div
+                                  style={{
+                                    fontSize: "10px",
+                                    color: "#999",
+                                    marginTop: 4,
+                                    textAlign: "right",
+                                  }}
+                                >
+                                  Due: {dayjs(task.dueDate).format("MMM DD")}
                                 </div>
                               </Card>
                             )}
@@ -472,38 +541,36 @@ const Tasks: React.FC = () => {
 
   return (
     <div>
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-        marginBottom: 24
-      }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 24,
+        }}
+      >
         <Title level={2} style={{ margin: 0 }}>
           Task Management
         </Title>
         <Space>
           <Tabs
             activeKey={viewType}
-            onChange={(key) => setViewType(key as 'table' | 'kanban')}
+            onChange={(key) => setViewType(key as "table" | "kanban")}
             size="small"
             items={[
-              { key: 'table', label: 'Table View' },
-              { key: 'kanban', label: 'Kanban Board' }
+              { key: "table", label: "Table View" },
+              { key: "kanban", label: "Kanban Board" },
             ]}
           />
-          {user?.role !== 'executive' && (
-            <Button 
-              type="primary" 
-              icon={<PlusOutlined />}
-              onClick={handleAdd}
-            >
+          {user?.role !== "executive" && (
+            <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
               Add Task
             </Button>
           )}
         </Space>
       </div>
 
-      {viewType === 'table' ? (
+      {viewType === "table" ? (
         <Card>
           <Table
             dataSource={userTasks}
@@ -515,7 +582,7 @@ const Tasks: React.FC = () => {
               showSizeChanger: true,
               showQuickJumper: true,
               showTotal: (total, range) =>
-                `${range[0]}-${range[1]} of ${total} tasks`
+                `${range[0]}-${range[1]} of ${total} tasks`,
             }}
           />
         </Card>
@@ -524,26 +591,27 @@ const Tasks: React.FC = () => {
       )}
 
       <Modal
-        title={editingTask ? 'Edit Task' : 'Add New Task'}
+        title={editingTask ? "Edit Task" : "Add New Task"}
         open={isModalVisible}
         onOk={handleSubmit}
         onCancel={() => setIsModalVisible(false)}
         width={800}
-        okText={editingTask ? 'Update' : 'Create'}
+        okText={editingTask ? "Update" : "Create"}
+        centered
       >
         <Form
           form={form}
           layout="vertical"
           initialValues={{
-            status: 'not-started',
-            priority: 'medium',
-            progress: 0
+            status: "not-started",
+            priority: "medium",
+            progress: 0,
           }}
         >
           <Form.Item
             name="title"
             label="Task Title"
-            rules={[{ required: true, message: 'Please enter task title' }]}
+            rules={[{ required: true, message: "Please enter task title" }]}
           >
             <Input placeholder="Enter task title" />
           </Form.Item>
@@ -551,7 +619,9 @@ const Tasks: React.FC = () => {
           <Form.Item
             name="description"
             label="Description"
-            rules={[{ required: true, message: 'Please enter task description' }]}
+            rules={[
+              { required: true, message: "Please enter task description" },
+            ]}
           >
             <TextArea rows={3} placeholder="Task description..." />
           </Form.Item>
@@ -561,10 +631,10 @@ const Tasks: React.FC = () => {
               <Form.Item
                 name="projectId"
                 label="Project"
-                rules={[{ required: true, message: 'Please select project' }]}
+                rules={[{ required: true, message: "Please select project" }]}
               >
                 <Select placeholder="Select project">
-                  {userProjects.map(project => (
+                  {userProjects.map((project) => (
                     <Option key={project.id} value={project.id}>
                       {project.name}
                     </Option>
@@ -576,16 +646,18 @@ const Tasks: React.FC = () => {
               <Form.Item
                 name="assignedTo"
                 label="Assign To"
-                rules={[{ required: true, message: 'Please select assignee' }]}
+                rules={[{ required: true, message: "Please select assignee" }]}
               >
                 <Select placeholder="Select assignee">
                   {mockUsers
-                    .filter(u => u.role === 'executive' || u.role === 'incharge')
-                    .map(user => (
-                    <Option key={user.id} value={user.id}>
-                      {user.name} ({user.role})
-                    </Option>
-                  ))}
+                    .filter(
+                      (u) => u.role === "executive" || u.role === "incharge"
+                    )
+                    .map((user) => (
+                      <Option key={user.id} value={user.id}>
+                        {user.name} ({user.role})
+                      </Option>
+                    ))}
                 </Select>
               </Form.Item>
             </Col>
@@ -614,7 +686,7 @@ const Tasks: React.FC = () => {
               <Form.Item
                 name="priority"
                 label="Priority"
-                rules={[{ required: true, message: 'Please select priority' }]}
+                rules={[{ required: true, message: "Please select priority" }]}
               >
                 <Select>
                   <Option value="low">Low</Option>
@@ -627,7 +699,7 @@ const Tasks: React.FC = () => {
               <Form.Item
                 name="status"
                 label="Status"
-                rules={[{ required: true, message: 'Please select status' }]}
+                rules={[{ required: true, message: "Please select status" }]}
               >
                 <Select>
                   <Option value="not-started">Not Started</Option>
@@ -641,48 +713,44 @@ const Tasks: React.FC = () => {
               <Form.Item
                 name="dueDate"
                 label="Due Date"
-                rules={[{ required: true, message: 'Please select due date' }]}
+                rules={[{ required: true, message: "Please select due date" }]}
               >
-                <DatePicker style={{ width: '100%' }} />
+                <DatePicker style={{ width: "100%" }} />
               </Form.Item>
             </Col>
           </Row>
 
-          <Form.Item
-            name="progress"
-            label="Progress (%)"
-          >
-            <Progress 
-              percent={Form.useWatch('progress', form) || 0} 
+          <Form.Item name="progress" label="Progress (%)">
+            <Progress
+              percent={Form.useWatch("progress", form) || 0}
               style={{ marginBottom: 8 }}
             />
-            <input 
-              type="range" 
-              min="0" 
-              max="100" 
-              style={{ width: '100%' }}
-              onChange={(e) => form.setFieldsValue({ progress: parseInt(e.target.value) })}
+            <input
+              type="range"
+              min="0"
+              max="100"
+              style={{ width: "100%" }}
+              onChange={(e) =>
+                form.setFieldsValue({ progress: parseInt(e.target.value) })
+              }
             />
           </Form.Item>
 
           <Row gutter={[16, 0]}>
             <Col xs={24} sm={12}>
-              <Form.Item
-                name="dependencies"
-                label="Task Dependencies"
-              >
+              <Form.Item name="dependencies" label="Task Dependencies">
                 <Select
                   mode="multiple"
                   placeholder="Select dependent tasks"
                   allowClear
                 >
                   {userTasks
-                    .filter(t => t.id !== editingTask?.id)
-                    .map(task => (
-                    <Option key={task.id} value={task.id}>
-                      {task.title}
-                    </Option>
-                  ))}
+                    .filter((t) => t.id !== editingTask?.id)
+                    .map((task) => (
+                      <Option key={task.id} value={task.id}>
+                        {task.title}
+                      </Option>
+                    ))}
                 </Select>
               </Form.Item>
             </Col>
@@ -699,18 +767,12 @@ const Tasks: React.FC = () => {
 
           <Row gutter={[16, 0]}>
             <Col xs={24} sm={12}>
-              <Form.Item
-                name="estimatedHours"
-                label="Estimated Hours"
-              >
-                <InputNumber min={0} style={{ width: '100%' }} />
+              <Form.Item name="estimatedHours" label="Estimated Hours">
+                <InputNumber min={0} style={{ width: "100%" }} />
               </Form.Item>
             </Col>
             <Col xs={24} sm={12}>
-              <Form.Item
-                name="unitType"
-                label="Unit Type"
-              >
+              <Form.Item name="unitType" label="Unit Type">
                 <Select placeholder="Select unit type" allowClear>
                   <Option value="1BHK">1BHK</Option>
                   <Option value="2BHK">2BHK</Option>
@@ -723,11 +785,7 @@ const Tasks: React.FC = () => {
           </Row>
 
           <Form.Item label="Attach Files">
-            <Upload
-              multiple
-              beforeUpload={() => false}
-              listType="picture"
-            >
+            <Upload multiple beforeUpload={() => false} listType="picture">
               <Button icon={<UploadOutlined />}>Upload Files</Button>
             </Upload>
           </Form.Item>
@@ -741,15 +799,19 @@ const Tasks: React.FC = () => {
         onCancel={() => setIsViewModalVisible(false)}
         width={900}
         footer={[
-          <Button key="edit" type="primary" onClick={() => {
-            setIsViewModalVisible(false);
-            if (viewingTask) handleEdit(viewingTask);
-          }}>
+          <Button
+            key="edit"
+            type="primary"
+            onClick={() => {
+              setIsViewModalVisible(false);
+              if (viewingTask) handleEdit(viewingTask);
+            }}
+          >
             Edit Task
           </Button>,
           <Button key="close" onClick={() => setIsViewModalVisible(false)}>
             Close
-          </Button>
+          </Button>,
         ]}
       >
         {viewingTask && (
@@ -763,7 +825,10 @@ const Tasks: React.FC = () => {
                   </div>
                   <div style={{ marginBottom: 12 }}>
                     <Text strong>Location: </Text>
-                    <Text>{viewingTask.building} • {viewingTask.floor} • {viewingTask.unit}</Text>
+                    <Text>
+                      {viewingTask.building} • {viewingTask.floor} •{" "}
+                      {viewingTask.unit}
+                    </Text>
                   </div>
                   {viewingTask.unitType && (
                     <div style={{ marginBottom: 12 }}>
@@ -784,7 +849,7 @@ const Tasks: React.FC = () => {
                   <div style={{ marginBottom: 12 }}>
                     <Text strong>Status: </Text>
                     <Tag color={getStatusColor(viewingTask.status)}>
-                      {viewingTask.status.replace('-', ' ').toUpperCase()}
+                      {viewingTask.status.replace("-", " ").toUpperCase()}
                     </Tag>
                   </div>
                   <div style={{ marginBottom: 12 }}>
@@ -794,7 +859,10 @@ const Tasks: React.FC = () => {
                   {viewingTask.estimatedHours && (
                     <div style={{ marginBottom: 12 }}>
                       <Text strong>Time: </Text>
-                      <Text>{viewingTask.actualHours || 0}h / {viewingTask.estimatedHours}h</Text>
+                      <Text>
+                        {viewingTask.actualHours || 0}h /{" "}
+                        {viewingTask.estimatedHours}h
+                      </Text>
                     </div>
                   )}
                 </Card>
@@ -802,28 +870,39 @@ const Tasks: React.FC = () => {
               <Col xs={24} md={12}>
                 <Card size="small" title="Dependencies & Status">
                   {(() => {
-                    const { dependencies, dependents } = getTaskDependencies(viewingTask.id);
+                    const { dependencies, dependents } = getTaskDependencies(
+                      viewingTask.id
+                    );
                     const canStart = canStartTask(viewingTask.id);
-                    
+
                     return (
                       <div>
                         {dependencies.length > 0 && (
                           <div style={{ marginBottom: 16 }}>
                             <Text strong>Depends On:</Text>
                             <div style={{ marginTop: 8 }}>
-                              {dependencies.map(dep => (
-                                <div key={dep.id} style={{ 
-                                  padding: '4px 8px', 
-                                  background: '#f5f5f5', 
-                                  borderRadius: '4px',
-                                  marginBottom: '4px',
-                                  display: 'flex',
-                                  justifyContent: 'space-between',
-                                  alignItems: 'center'
-                                }}>
-                                  <Text style={{ fontSize: '12px' }}>{dep.title}</Text>
-                                  <Tag 
-                                    color={dep.status === 'completed' ? 'green' : 'orange'}
+                              {dependencies.map((dep) => (
+                                <div
+                                  key={dep.id}
+                                  style={{
+                                    padding: "4px 8px",
+                                    background: "#f5f5f5",
+                                    borderRadius: "4px",
+                                    marginBottom: "4px",
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    alignItems: "center",
+                                  }}
+                                >
+                                  <Text style={{ fontSize: "12px" }}>
+                                    {dep.title}
+                                  </Text>
+                                  <Tag
+                                    color={
+                                      dep.status === "completed"
+                                        ? "green"
+                                        : "orange"
+                                    }
                                     size="small"
                                   >
                                     {dep.status}
@@ -833,33 +912,47 @@ const Tasks: React.FC = () => {
                             </div>
                           </div>
                         )}
-                        
+
                         {dependents.length > 0 && (
                           <div style={{ marginBottom: 16 }}>
                             <Text strong>Blocks These Tasks:</Text>
                             <div style={{ marginTop: 8 }}>
-                              {dependents.map(dep => (
-                                <div key={dep.id} style={{ 
-                                  padding: '4px 8px', 
-                                  background: '#f0f9ff', 
-                                  borderRadius: '4px',
-                                  marginBottom: '4px'
-                                }}>
-                                  <Text style={{ fontSize: '12px' }}>{dep.title}</Text>
+                              {dependents.map((dep) => (
+                                <div
+                                  key={dep.id}
+                                  style={{
+                                    padding: "4px 8px",
+                                    background: "#f0f9ff",
+                                    borderRadius: "4px",
+                                    marginBottom: "4px",
+                                  }}
+                                >
+                                  <Text style={{ fontSize: "12px" }}>
+                                    {dep.title}
+                                  </Text>
                                 </div>
                               ))}
                             </div>
                           </div>
                         )}
-                        
-                        <div style={{ 
-                          padding: '8px', 
-                          background: canStart ? '#f6ffed' : '#fff7e6',
-                          border: `1px solid ${canStart ? '#b7eb8f' : '#ffd591'}`,
-                          borderRadius: '4px'
-                        }}>
-                          <Text strong style={{ color: canStart ? '#52c41a' : '#faad14' }}>
-                            {canStart ? '✅ Ready to Start' : '⚠️ Waiting for Dependencies'}
+
+                        <div
+                          style={{
+                            padding: "8px",
+                            background: canStart ? "#f6ffed" : "#fff7e6",
+                            border: `1px solid ${
+                              canStart ? "#b7eb8f" : "#ffd591"
+                            }`,
+                            borderRadius: "4px",
+                          }}
+                        >
+                          <Text
+                            strong
+                            style={{ color: canStart ? "#52c41a" : "#faad14" }}
+                          >
+                            {canStart
+                              ? "✅ Ready to Start"
+                              : "⚠️ Waiting for Dependencies"}
                           </Text>
                         </div>
                       </div>
@@ -868,7 +961,7 @@ const Tasks: React.FC = () => {
                 </Card>
               </Col>
             </Row>
-            
+
             <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
               <Col xs={24}>
                 <Card size="small" title="Description">
@@ -876,25 +969,32 @@ const Tasks: React.FC = () => {
                 </Card>
               </Col>
             </Row>
-            
+
             {viewingTask.photos && viewingTask.photos.length > 0 && (
               <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
                 <Col xs={24}>
                   <Card size="small" title="Photos">
-                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                       {viewingTask.photos.map((photo, index) => (
-                        <div key={index} style={{ 
-                          width: 100, 
-                          height: 100, 
-                          background: '#f5f5f5',
-                          borderRadius: 4,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          border: '1px solid #d9d9d9'
-                        }}>
-                          <CameraOutlined style={{ fontSize: 24, color: '#999' }} />
-                          <div style={{ fontSize: '10px', marginTop: 4 }}>{photo}</div>
+                        <div
+                          key={index}
+                          style={{
+                            width: 100,
+                            height: 100,
+                            background: "#f5f5f5",
+                            borderRadius: 4,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            border: "1px solid #d9d9d9",
+                          }}
+                        >
+                          <CameraOutlined
+                            style={{ fontSize: 24, color: "#999" }}
+                          />
+                          <div style={{ fontSize: "10px", marginTop: 4 }}>
+                            {photo}
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -902,43 +1002,56 @@ const Tasks: React.FC = () => {
                 </Col>
               </Row>
             )}
-            
+
             <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
               <Col xs={24}>
                 <Card size="small" title="Comments & Updates">
-                  <div style={{ maxHeight: 200, overflowY: 'auto', marginBottom: 16 }}>
-                    {getTaskComments(viewingTask.id).map(comment => (
-                      <div key={comment.id} style={{ 
-                        padding: '8px 12px', 
-                        background: '#f9f9f9', 
-                        borderRadius: '6px',
-                        marginBottom: '8px'
-                      }}>
-                        <div style={{ 
-                          display: 'flex', 
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                          marginBottom: '4px'
-                        }}>
-                          <Text strong style={{ fontSize: '12px' }}>{comment.userName}</Text>
-                          <Text type="secondary" style={{ fontSize: '11px' }}>
-                            {dayjs(comment.date).format('MMM DD, HH:mm')}
+                  <div
+                    style={{
+                      maxHeight: 200,
+                      overflowY: "auto",
+                      marginBottom: 16,
+                    }}
+                  >
+                    {getTaskComments(viewingTask.id).map((comment) => (
+                      <div
+                        key={comment.id}
+                        style={{
+                          padding: "8px 12px",
+                          background: "#f9f9f9",
+                          borderRadius: "6px",
+                          marginBottom: "8px",
+                        }}
+                      >
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            marginBottom: "4px",
+                          }}
+                        >
+                          <Text strong style={{ fontSize: "12px" }}>
+                            {comment.userName}
+                          </Text>
+                          <Text type="secondary" style={{ fontSize: "11px" }}>
+                            {dayjs(comment.date).format("MMM DD, HH:mm")}
                           </Text>
                         </div>
-                        <Text style={{ fontSize: '13px' }}>{comment.text}</Text>
+                        <Text style={{ fontSize: "13px" }}>{comment.text}</Text>
                       </div>
                     ))}
                   </div>
-                  
-                  <div style={{ display: 'flex', gap: 8 }}>
+
+                  <div style={{ display: "flex", gap: 8 }}>
                     <Input.TextArea
                       value={newComment}
                       onChange={(e) => setNewComment(e.target.value)}
                       placeholder="Add a comment..."
                       rows={2}
                     />
-                    <Button 
-                      type="primary" 
+                    <Button
+                      type="primary"
                       onClick={handleAddComment}
                       disabled={!newComment.trim()}
                     >

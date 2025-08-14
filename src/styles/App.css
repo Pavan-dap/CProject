@@ -138,3 +138,12 @@
     height: 16px !important;
   }
 }
+
+.ant-layout-sider {
+  position: fixed !important;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  height: 100vh;
+  z-index: 1000;
+}
