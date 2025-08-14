@@ -66,7 +66,7 @@ const Dashboard: React.FC = () => {
   const upcomingTasks = userTasks
     .filter(t => t.status !== 'completed')
     .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
-    .slice(0, 5);
+    .slice(0, 5) || [];
 
   const columns = [
     {
