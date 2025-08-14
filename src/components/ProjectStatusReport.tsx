@@ -1,31 +1,35 @@
-import React, { useState } from 'react';
-import { 
-  Card, 
-  Typography, 
-  Progress, 
-  Row, 
-  Col, 
-  Table, 
-  Tag, 
-  Button, 
+import React, { useState, useRef } from 'react';
+import {
+  Card,
+  Typography,
+  Progress,
+  Row,
+  Col,
+  Table,
+  Tag,
+  Button,
   Space,
   Statistic,
   Collapse,
   Image,
   Divider,
   Select,
-  DatePicker
+  DatePicker,
+  message
 } from 'antd';
-import { 
-  PrinterOutlined, 
-  DownloadOutlined, 
+import {
+  PrinterOutlined,
+  DownloadOutlined,
   ShareAltOutlined,
   CameraOutlined,
   HomeOutlined,
   CheckCircleOutlined,
   ClockCircleOutlined,
-  ExclamationCircleOutlined
+  ExclamationCircleOutlined,
+  FilePdfOutlined
 } from '@ant-design/icons';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 import { useData, ProjectHierarchy } from '../contexts/DataContext';
 import { useAuth } from '../contexts/AuthContext';
 import dayjs from 'dayjs';
@@ -47,6 +51,94 @@ const ProjectStatusReport: React.FC<ProjectStatusReportProps> = ({
   const { projects, tasks, getProjectHierarchy } = useData();
   const [selectedProject, setSelectedProject] = useState<number>(projectId || 1);
   const [reportDate] = useState(dayjs());
+  const [isExporting, setIsExporting] = useState(false);
+  const reportRef = useRef<HTMLDivElement>(null);
+
+  // PDF Export Function
+  const exportToPDF = async () => {
+    if (!reportRef.current) return;
+
+    setIsExporting(true);
+    try {
+      const canvas = await html2canvas(reportRef.current, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff'
+      });
+
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgWidth = 210;
+      const pageHeight = 295;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 0;
+
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+
+      const projectName = projects.find(p => p.id === selectedProject)?.name?.replace(/\s+/g, '_') || 'Unknown_Project';
+      const fileName = `${projectName}_Status_Report_${dayjs().format('YYYY-MM-DD')}.pdf`;
+
+      pdf.save(fileName);
+      message.success('Status report exported to PDF successfully!');
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      message.error('Failed to export PDF. Please try again.');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  // Print Function
+  const handlePrint = () => {
+    if (!reportRef.current) return;
+
+    const printContent = reportRef.current.innerHTML;
+
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Project Status Report - ${project?.name}</title>
+            <style>
+              body { font-family: Arial, sans-serif; margin: 20px; }
+              .ant-card { border: 1px solid #d9d9d9; border-radius: 6px; margin-bottom: 16px; }
+              .ant-card-head { padding: 16px; border-bottom: 1px solid #f0f0f0; font-weight: bold; }
+              .ant-card-body { padding: 16px; }
+              .ant-table { border: 1px solid #f0f0f0; }
+              .ant-table th, .ant-table td { border: 1px solid #f0f0f0; padding: 8px; }
+              .ant-tag { padding: 2px 8px; border-radius: 4px; font-size: 12px; }
+              .no-print { display: none !important; }
+              @media print {
+                .no-print { display: none !important; }
+                .ant-card { break-inside: avoid; }
+              }
+            </style>
+          </head>
+          <body>
+            <h1>Project Status Report</h1>
+            <h2>${project?.name}</h2>
+            <p>Generated on: ${dayjs().format('MMMM DD, YYYY')}</p>
+            <hr/>
+            ${printContent}
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.print();
+      printWindow.close();
+    }
+  };
 
   const project = projects.find(p => p.id === selectedProject);
   const hierarchy = getProjectHierarchy(selectedProject);
@@ -78,9 +170,6 @@ const ProjectStatusReport: React.FC<ProjectStatusReportProps> = ({
     return acc;
   }, {} as Record<string, { total: number; completed: number }>);
 
-  const handlePrint = () => {
-    window.print();
-  };
   const ProjectStatusReport: React.FC = () => {
   return (
     <div>
@@ -88,36 +177,11 @@ const ProjectStatusReport: React.FC<ProjectStatusReportProps> = ({
     </div>
   );
 };
-  const handleDownloadPDF = () => {
-    // Simulate PDF download
-    const reportData = {
-      project,
-      hierarchy,
-      statistics: {
-        totalTasks,
-        completedTasks,
-        inProgressTasks,
-        pendingTasks,
-        overdueTasks
-      },
-      generatedDate: reportDate.format('YYYY-MM-DD HH:mm:ss')
-    };
-    
-    const dataStr = JSON.stringify(reportData, null, 2);
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${project.name}-status-report-${reportDate.format('YYYY-MM-DD')}.json`;
-    link.click();
-    URL.revokeObjectURL(url);
-  };
 
   const handleShare = () => {
     const shareUrl = `${window.location.origin}/project-status/${selectedProject}`;
     navigator.clipboard.writeText(shareUrl);
-    // In real app, would show success message
-    console.log('Share URL copied:', shareUrl);
+    message.success('Share URL copied to clipboard!');
   };
 
   const getStatusIcon = (status: string) => {
@@ -190,7 +254,11 @@ const ProjectStatusReport: React.FC<ProjectStatusReportProps> = ({
             <Button icon={<ShareAltOutlined />} onClick={handleShare}>
               Share
             </Button>
-            <Button icon={<DownloadOutlined />} onClick={handleDownloadPDF}>
+            <Button
+              icon={<FilePdfOutlined />}
+              onClick={exportToPDF}
+              loading={isExporting}
+            >
               Download PDF
             </Button>
             <Button type="primary" icon={<PrinterOutlined />} onClick={handlePrint}>
@@ -200,7 +268,7 @@ const ProjectStatusReport: React.FC<ProjectStatusReportProps> = ({
         </div>
       )}
 
-      <div className="print-content">
+      <div className="print-content" ref={reportRef}>
         {/* Header */}
         <Card style={{ marginBottom: 24 }}>
           <Row gutter={[24, 24]} align="middle">
@@ -374,7 +442,7 @@ const ProjectStatusReport: React.FC<ProjectStatusReportProps> = ({
                                 }}
                                 title={`Unit ${unit.unitNumber} (${unit.unitType}) - ${Math.round(unit.completionPercentage)}%`}
                               >
-                                {unit.unitNumber.slice(-1)}
+                                {unit.unitNumber?.slice(-1) || '?'}
                               </div>
                             ))}
                           </div>
@@ -390,7 +458,7 @@ const ProjectStatusReport: React.FC<ProjectStatusReportProps> = ({
 
         {/* Recent Task Updates with Photos */}
         <Card title="Recent Task Updates" style={{ marginBottom: 24 }}>
-          {projectTasks
+          {(projectTasks || [])
             .filter(task => task.photos && task.photos.length > 0)
             .slice(0, 5)
             .map(task => (
@@ -419,7 +487,7 @@ const ProjectStatusReport: React.FC<ProjectStatusReportProps> = ({
                   </Col>
                   <Col xs={24} md={8}>
                     <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                      {task.photos?.slice(0, 3).map((photo, index) => (
+                      {(task.photos || []).slice(0, 3).map((photo, index) => (
                         <div key={index} style={{ 
                           width: 60, 
                           height: 60, 

@@ -40,7 +40,7 @@ import {
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { useData, Task } from "../contexts/DataContext";
 import { useAuth } from "../contexts/AuthContext";
-import { useRealTimeSync, useComponentRefresh } from "../hooks/useRealTimeSync";
+import { useRealTimeSync, useComponentRefresh, useUserManagement } from "../hooks/useRealTimeSync";
 import dayjs from "dayjs";
 
 const { Title, Text, Paragraph } = Typography;
@@ -58,7 +58,9 @@ const Tasks: React.FC = () => {
     canStartTask,
     getTaskComments,
     addTaskComment,
+    getUserById,
   } = useData();
+  const { assignableUsers } = useUserManagement();
   const { forceSync } = useRealTimeSync();
   const { refreshKey } = useComponentRefresh();
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -79,13 +81,6 @@ const Tasks: React.FC = () => {
     user?.role === "executive"
       ? tasks.filter((t) => t.assignedTo === user.id)
       : tasks.filter((t) => userProjects.some((p) => p.id === t.projectId));
-
-  const mockUsers = [
-    { id: 1, name: "John Smith", role: "admin" },
-    { id: 2, name: "Sarah Johnson", role: "manager" },
-    { id: 3, name: "Mike Wilson", role: "incharge" },
-    { id: 4, name: "Lisa Davis", role: "executive" },
-  ];
 
   const handleAdd = () => {
     setEditingTask(null);
@@ -164,8 +159,13 @@ const Tasks: React.FC = () => {
     message.success("Comment added");
   };
 
-  const getUserById = (id: number) => {
-    return mockUsers.find((u) => u.id === id);
+  const getUser = (id: number) => {
+    return getUserById(id);
+  };
+
+  const handleView = (viewTask: Task) => {
+    setViewingTask(viewTask);
+    setIsViewModalVisible(true);
   };
 
   const getProjectById = (id: number) => {
@@ -238,14 +238,14 @@ const Tasks: React.FC = () => {
       title: "Assigned To",
       key: "assignedTo",
       render: (record: Task) => {
-        const assignee = getUserById(record.assignedTo);
+        const assignee = getUser(record.assignedTo);
         return (
           <div className="task-avatar">
             <Avatar size="small" style={{ backgroundColor: "#1890ff" }}>
-              {assignee?.name.charAt(0)}
+              {assignee?.name?.charAt(0) || '?'}
             </Avatar>
             <div>
-              <div style={{ fontSize: "13px" }}>{assignee?.name}</div>
+              <div style={{ fontSize: "13px" }}>{assignee?.name || 'Unassigned'}</div>
               <div
                 style={{
                   fontSize: "11px",
@@ -253,7 +253,7 @@ const Tasks: React.FC = () => {
                   textTransform: "capitalize",
                 }}
               >
-                {assignee?.role}
+                {assignee?.role || 'Unknown'}
               </div>
             </div>
           </div>
@@ -430,7 +430,7 @@ const Tasks: React.FC = () => {
                     >
                       {statusTasks.map((task, index) => {
                         const project = getProjectById(task.projectId);
-                        const assignee = getUserById(task.assignedTo);
+                        const assignee = getUser(task.assignedTo);
 
                         return (
                           <Draggable
@@ -497,10 +497,10 @@ const Tasks: React.FC = () => {
                                       size={16}
                                       style={{ backgroundColor: "#1890ff" }}
                                     >
-                                      {assignee?.name.charAt(0)}
+                                      {assignee?.name?.charAt(0) || '?'}
                                     </Avatar>
                                     <span style={{ marginLeft: 4 }}>
-                                      {assignee?.name}
+                                      {assignee?.name || 'Unassigned'}
                                     </span>
                                   </div>
 
@@ -649,15 +649,11 @@ const Tasks: React.FC = () => {
                 rules={[{ required: true, message: "Please select assignee" }]}
               >
                 <Select placeholder="Select assignee">
-                  {mockUsers
-                    .filter(
-                      (u) => u.role === "executive" || u.role === "incharge"
-                    )
-                    .map((user) => (
-                      <Option key={user.id} value={user.id}>
-                        {user.name} ({user.role})
-                      </Option>
-                    ))}
+                  {(assignableUsers || []).map((assignUser) => (
+                    <Option key={assignUser.id} value={assignUser.id}>
+                      {assignUser.name} ({assignUser.role})
+                    </Option>
+                  ))}
                 </Select>
               </Form.Item>
             </Col>
@@ -838,7 +834,7 @@ const Tasks: React.FC = () => {
                   )}
                   <div style={{ marginBottom: 12 }}>
                     <Text strong>Assigned To: </Text>
-                    <Text>{getUserById(viewingTask.assignedTo)?.name}</Text>
+                    <Text>{getUser(viewingTask.assignedTo)?.name || 'Unassigned'}</Text>
                   </div>
                   <div style={{ marginBottom: 12 }}>
                     <Text strong>Priority: </Text>

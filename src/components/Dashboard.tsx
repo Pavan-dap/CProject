@@ -17,7 +17,7 @@ const { Title, Text } = Typography;
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
-  const { projects, tasks } = useData();
+  const { projects, tasks, users } = useData();
   const { syncTrigger } = useRealTimeSync();
   const realtimeStats = useRealTimeStats();
 
@@ -66,7 +66,7 @@ const Dashboard: React.FC = () => {
   const upcomingTasks = userTasks
     .filter(t => t.status !== 'completed')
     .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
-    .slice(0, 5);
+    .slice(0, 5) || [];
 
   const columns = [
     {
@@ -120,7 +120,7 @@ const Dashboard: React.FC = () => {
       </Title>
 
       <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
-        <Col xs={24} sm={12} lg={6}>
+        <Col xs={24} sm={12} md={6} lg={6} xl={6}>
           <Card>
             <Statistic
               title="Total Projects"
@@ -130,7 +130,7 @@ const Dashboard: React.FC = () => {
             />
           </Card>
         </Col>
-        <Col xs={24} sm={12} lg={6}>
+        <Col xs={24} sm={12} md={6} lg={6} xl={6}>
           <Card>
             <Statistic
               title="Total Tasks"
@@ -140,7 +140,7 @@ const Dashboard: React.FC = () => {
             />
           </Card>
         </Col>
-        <Col xs={24} sm={12} lg={6}>
+        <Col xs={24} sm={12} md={6} lg={6} xl={6}>
           <Card>
             <Statistic
               title="In Progress"
@@ -150,7 +150,7 @@ const Dashboard: React.FC = () => {
             />
           </Card>
         </Col>
-        <Col xs={24} sm={12} lg={6}>
+        <Col xs={24} sm={12} md={6} lg={6} xl={6}>
           <Card>
             <Statistic
               title="Overdue Tasks"
@@ -163,7 +163,7 @@ const Dashboard: React.FC = () => {
       </Row>
 
       <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
-        <Col xs={24} lg={16}>
+        <Col xs={24} md={24} lg={16} xl={16}>
           <Card title="Project Progress Overview" style={{ height: 'auto', minHeight: 400 }}>
             <ResponsiveContainer width="100%" height={300} minHeight={250}>
               <BarChart data={taskProgressData}>
@@ -176,7 +176,7 @@ const Dashboard: React.FC = () => {
             </ResponsiveContainer>
           </Card>
         </Col>
-        <Col xs={24} lg={8}>
+        <Col xs={24} md={24} lg={8} xl={8}>
           <Card title="Project Status Distribution" style={{ height: 'auto', minHeight: 400 }}>
             <ResponsiveContainer width="100%" height={300} minHeight={200}>
               <PieChart>
@@ -226,6 +226,38 @@ const Dashboard: React.FC = () => {
         </Col>
         <Col xs={24} lg={8}>
           <Row gutter={[16, 16]}>
+            {user?.role === 'admin' && (
+              <Col xs={24}>
+                <Card title="User Statistics" size="small" style={{ marginBottom: 16 }}>
+                  <Row gutter={[8, 8]}>
+                    <Col xs={12}>
+                      <Statistic
+                        title="Total Users"
+                        value={realtimeStats.totalUsers}
+                        prefix={<UserOutlined />}
+                        style={{ textAlign: 'center' }}
+                      />
+                    </Col>
+                    <Col xs={12}>
+                      <Statistic
+                        title="Active"
+                        value={realtimeStats.activeUsers}
+                        valueStyle={{ color: '#52c41a' }}
+                        style={{ textAlign: 'center' }}
+                      />
+                    </Col>
+                  </Row>
+                  <div style={{ marginTop: 16, textAlign: 'center' }}>
+                    <Space wrap>
+                      <Tag color="#f5222d">Admin: {realtimeStats.usersByRole.admin}</Tag>
+                      <Tag color="#1890ff">Manager: {realtimeStats.usersByRole.manager}</Tag>
+                      <Tag color="#52c41a">Incharge: {realtimeStats.usersByRole.incharge}</Tag>
+                      <Tag color="#fa8c16">Executive: {realtimeStats.usersByRole.executive}</Tag>
+                    </Space>
+                  </div>
+                </Card>
+              </Col>
+            )}
             <Col xs={24}>
               <Card title="Recent Activities" size="small">
                 <List

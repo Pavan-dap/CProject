@@ -9,6 +9,7 @@ import {
   Typography,
   Badge,
   InputNumber,
+  Breadcrumb,
 } from "antd";
 import {
   DashboardOutlined,
@@ -21,6 +22,7 @@ import {
   UserOutlined,
   BellOutlined,
   SettingOutlined,
+  HomeOutlined,
 } from "@ant-design/icons";
 import ProjectStatusReport from "./components/ProjectStatusReport";
 import Login from "./components/Login";
@@ -189,6 +191,22 @@ const AppContent: React.FC = () => {
     return colors[role as keyof typeof colors] || "#666";
   };
 
+  const getBreadcrumbItems = () => {
+    const currentMenuItem = menuItems.find(item => item.key === activeMenu);
+    return [
+      {
+        href: '#',
+        title: <HomeOutlined />,
+        onClick: () => setActiveMenu('dashboard')
+      },
+      {
+        href: '#',
+        title: currentMenuItem?.label || 'Dashboard',
+        onClick: () => {}
+      }
+    ];
+  };
+
   return (
     <Layout style={{ minHeight: "100vh",marginLeft: isMobile ? 0 : collapsed ? 80 : 240, }}>
       {isMobile && !collapsed && (
@@ -342,6 +360,18 @@ const AppContent: React.FC = () => {
             transition: "all 0.2s ease-in-out",
           }}
         >
+          <div style={{
+            marginBottom: 16,
+            background: "#fff",
+            borderRadius: "6px",
+            padding: "12px 16px",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.1)"
+          }}>
+            <Breadcrumb
+              items={getBreadcrumbItems()}
+              style={{ fontSize: "14px" }}
+            />
+          </div>
           {renderContent()}
         </Content>
       </Layout>

@@ -106,29 +106,33 @@ export const ensureStorageConsistency = () => {
   try {
     const projects = JSON.parse(localStorage.getItem('construction_projects') || '[]');
     const tasks = JSON.parse(localStorage.getItem('construction_tasks') || '[]');
+    const users = JSON.parse(localStorage.getItem('construction_users') || '[]');
     const comments = JSON.parse(localStorage.getItem('construction_comments') || '[]');
 
     // Validate data integrity
     const validProjects = projects.filter((p: any) => p && p.id);
     const validTasks = tasks.filter((t: any) => t && t.id && t.projectId);
+    const validUsers = users.filter((u: any) => u && u.id && u.email);
     const validComments = comments.filter((c: any) => c && c.id);
 
     // Re-save if any validation occurred
     if (validProjects.length !== projects.length ||
         validTasks.length !== tasks.length ||
+        validUsers.length !== users.length ||
         validComments.length !== comments.length) {
-      
+
       localStorage.setItem('construction_projects', JSON.stringify(validProjects));
       localStorage.setItem('construction_tasks', JSON.stringify(validTasks));
+      localStorage.setItem('construction_users', JSON.stringify(validUsers));
       localStorage.setItem('construction_comments', JSON.stringify(validComments));
-      
-      return { projects: validProjects, tasks: validTasks, comments: validComments };
+
+      return { projects: validProjects, tasks: validTasks, users: validUsers, comments: validComments };
     }
 
-    return { projects, tasks, comments };
+    return { projects, tasks, users, comments };
   } catch (error) {
     console.error('Error ensuring storage consistency:', error);
-    return { projects: [], tasks: [], comments: [] };
+    return { projects: [], tasks: [], users: [], comments: [] };
   }
 };
 
