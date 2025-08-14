@@ -490,13 +490,26 @@ const Reports: React.FC = () => {
           Reports & Analytics
         </Title>
         <Space>
-          <Button 
+          <Button
             icon={<FileExcelOutlined />}
             onClick={() => handleExport('excel')}
           >
             Export Excel
           </Button>
-          <Button 
+          <Button
+            icon={<FilePdfOutlined />}
+            onClick={exportToPDF}
+            loading={isExporting}
+          >
+            Export PDF
+          </Button>
+          <Button
+            icon={<PrinterOutlined />}
+            onClick={handlePrint}
+          >
+            Print
+          </Button>
+          <Button
             icon={<FilePdfOutlined />}
             onClick={() => handleExport('pdf')}
           >
