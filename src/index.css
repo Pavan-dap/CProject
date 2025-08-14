@@ -157,6 +157,46 @@
   word-break: break-word;
 }
 
+/* Global responsive table styles */
+.ant-table-wrapper {
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  border-radius: 6px;
+}
+
+.ant-table-wrapper .ant-table {
+  min-width: 600px !important;
+}
+
+@media (max-width: 768px) {
+  .ant-table-wrapper .ant-table {
+    min-width: 500px !important;
+  }
+
+  .ant-table-thead > tr > th,
+  .ant-table-tbody > tr > td {
+    padding: 8px 4px !important;
+    font-size: 12px !important;
+  }
+
+  .ant-table-pagination {
+    margin: 16px 0 0 0 !important;
+    text-align: center !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .ant-table-wrapper .ant-table {
+    min-width: 400px !important;
+  }
+
+  .ant-table-thead > tr > th,
+  .ant-table-tbody > tr > td {
+    padding: 6px 2px !important;
+    font-size: 11px !important;
+  }
+}
+
 /* Better mobile menu */
 @media (max-width: 768px) {
   .ant-layout-sider-trigger {
