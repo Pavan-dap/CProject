@@ -1,28 +1,32 @@
-import React, { useState } from 'react';
-import { 
-  Card, 
-  Button, 
-  Space, 
-  DatePicker, 
-  Select, 
-  Table, 
-  Tag, 
-  Typography, 
-  Row, 
+import React, { useState, useRef } from 'react';
+import {
+  Card,
+  Button,
+  Space,
+  DatePicker,
+  Select,
+  Table,
+  Tag,
+  Typography,
+  Row,
   Col,
   Statistic,
   Progress,
-  Alert
+  Alert,
+  message
 } from 'antd';
-import { 
-  DownloadOutlined, 
-  FileExcelOutlined, 
+import {
+  DownloadOutlined,
+  FileExcelOutlined,
   FilePdfOutlined,
   ProjectOutlined,
   CheckSquareOutlined,
   UserOutlined,
-  CalendarOutlined
+  CalendarOutlined,
+  PrinterOutlined
 } from '@ant-design/icons';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
 import { useData } from '../contexts/DataContext';
 import { useAuth } from '../contexts/AuthContext';
