@@ -124,10 +124,12 @@ const Tasks: React.FC = () => {
       'completed': 100,
       'on-hold': 25
     };
-    updateTask(taskId, { 
+    updateTask(taskId, {
       status: newStatus as any,
       progress: progressMap[newStatus as keyof typeof progressMap]
     });
+    // Force immediate sync across all components
+    forceSync();
     message.success('Task status updated');
   };
 
