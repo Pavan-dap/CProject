@@ -575,11 +575,11 @@ const Reports: React.FC = () => {
       )}
 
       {totalTasks > 0 && (
-        <>
+        <div ref={reportRef}>
           {reportType === 'summary' && renderSummaryReport()}
           {reportType === 'progress' && renderProgressReport()}
           {reportType === 'detailed' && renderDetailedReport()}
-        </>
+        </div>
       )}
     </div>
   );
