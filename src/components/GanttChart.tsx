@@ -153,7 +153,7 @@ const GanttChart: React.FC = () => {
       );
 
       weeks.push({
-        label: `W ${current.week()} (${current.format('MMM DD')} - ${weekEnd.format('MMM DD')})`,
+        label: `Week ${current.week()} (${current.format('MMM DD')} - ${weekEnd.format('MMM DD')})`,
         days: daysInWeek,
         width: (daysInWeek / totalDays) * 100
       });
