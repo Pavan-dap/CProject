@@ -187,25 +187,25 @@ const AppContent: React.FC = () => {
           onClick={() => setCollapsed(true)}
         />
       )}
-        <Sider
-          collapsible
-          collapsed={collapsed}
-          onCollapse={setCollapsed}
-          theme="light"
-          width={240}
-          breakpoint="lg"
-          collapsedWidth={isMobile ? 0 : 80}
-          trigger={isMobile ? null : undefined}
-          style={{
-            height: '100vh',
-            position: isMobile ? 'fixed' : 'relative',
-            left: 0,
-            top: 0,
-            bottom: 0,
-            zIndex: isMobile ? 1000 : 'auto',
-            overflow: 'hidden' // <-- removes sidebar scroll
-          }}
-        >
+      <Sider
+        collapsible
+        collapsed={collapsed}
+        onCollapse={setCollapsed}
+        theme="light"
+        width={240}
+        breakpoint="lg"
+        collapsedWidth={isMobile ? 0 : 80}
+        trigger={isMobile ? null : undefined}
+        style={{
+          overflow: 'auto',
+          height: '100vh',
+          position: isMobile ? 'fixed' : 'relative',
+          left: 0,
+          top: 0,
+          bottom: 0,
+          zIndex: isMobile ? 1000 : 'auto'
+        }}
+      >
         <div style={{ 
           padding: '16px', 
           textAlign: 'center',
