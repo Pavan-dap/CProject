@@ -82,6 +82,8 @@ const Projects: React.FC = () => {
         addProject(projectData);
       }
 
+      // Force immediate sync across all components
+      forceSync();
       setIsModalVisible(false);
       form.resetFields();
     } catch (error) {
