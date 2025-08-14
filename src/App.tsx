@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Layout, Menu, Avatar, Dropdown, Button, Space, Typography, Badge,InputNumber  } from 'antd';
 import { 
   DashboardOutlined, 
@@ -85,17 +85,29 @@ const AppContent: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-      if (window.innerWidth < 768) {
-        setCollapsed(true);
-      }
-    };
+  const checkMobile = useCallback(() => {
+    const mobile = window.innerWidth < 768;
+    setIsMobile(mobile);
+    if (mobile) {
+      setCollapsed(true);
+    }
+  }, []);
 
+  useEffect(() => {
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
+  }, [checkMobile]);
+
+  // Listen for data changes to ensure immediate UI updates
+  useEffect(() => {
+    const handleDataUpdate = () => {
+      // Force re-render on data updates
+      setActiveMenu(prev => prev);
+    };
+
+    window.addEventListener('localStorageChange', handleDataUpdate);
+    return () => window.removeEventListener('localStorageChange', handleDataUpdate);
   }, []);
 
   if (!user) {
@@ -216,9 +228,10 @@ const AppContent: React.FC = () => {
             {isMobile && (
               <Button
                 type="text"
-                icon={collapsed ? <ProjectOutlined /> : <ProjectOutlined />}
+                icon={<ProjectOutlined />}
                 onClick={() => setCollapsed(!collapsed)}
-                style={{ fontSize: '16px' }}
+                style={{ fontSize: '16px', marginRight: '8px' }}
+                aria-label="Toggle Menu"
               />
             )}
             <Title
@@ -253,8 +266,8 @@ const AppContent: React.FC = () => {
           padding: isMobile ? '16px' : '24px',
           background: '#f5f5f5',
           minHeight: 'calc(100vh - 64px)',
-          marginLeft: isMobile && !collapsed ? '240px' : 0,
-          transition: 'margin-left 0.2s'
+          marginLeft: 0,
+          transition: 'all 0.2s ease-in-out'
         }}>
           {renderContent()}
         </Content>
