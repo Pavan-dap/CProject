@@ -362,7 +362,6 @@ const AppContent: React.FC = () => {
         >
           <div style={{
             marginBottom: 16,
-            padding: "8px 0",
             background: "#fff",
             borderRadius: "6px",
             padding: "12px 16px",
