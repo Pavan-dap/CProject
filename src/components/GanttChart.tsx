@@ -215,7 +215,7 @@ const GanttChart: React.FC = () => {
       <Card>
         <div style={{ marginBottom: 16 }}>
           <Row gutter={[16, 16]} align="middle">
-            <Col xs={24} sm={8}>
+            <Col xs={24} sm={6}>
               <Select
                 placeholder="Filter by Project"
                 style={{ width: '100%' }}
