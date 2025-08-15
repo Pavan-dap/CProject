@@ -366,15 +366,30 @@ const AppContent: React.FC = () => {
   );
 };
 
+// Wrapper component to handle authentication routing
+const AuthenticatedApp: React.FC = () => {
+  const { user } = useAuth();
+
+  if (!user) {
+    return <Login />;
+  }
+
+  return <AppContent />;
+};
+
 const App: React.FC = () => {
   return (
-    <GlobalStateProvider>
-      <AuthProvider>
-        <DataProvider>
-          <AppContent />
-        </DataProvider>
-      </AuthProvider>
-    </GlobalStateProvider>
+    <Router>
+      <GlobalStateProvider>
+        <AuthProvider>
+          <DataProvider>
+            <Routes>
+              <Route path="/*" element={<AuthenticatedApp />} />
+            </Routes>
+          </DataProvider>
+        </AuthProvider>
+      </GlobalStateProvider>
+    </Router>
   );
 };
 
