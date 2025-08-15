@@ -8,8 +8,6 @@ import {
   Space,
   Typography,
   Badge,
-  InputNumber,
-  Breadcrumb,
 } from "antd";
 import {
   DashboardOutlined,
@@ -22,7 +20,6 @@ import {
   UserOutlined,
   BellOutlined,
   SettingOutlined,
-  HomeOutlined,
 } from "@ant-design/icons";
 import ProjectStatusReport from "./components/ProjectStatusReport";
 import Login from "./components/Login";
@@ -191,24 +188,13 @@ const AppContent: React.FC = () => {
     return colors[role as keyof typeof colors] || "#666";
   };
 
-  const getBreadcrumbItems = () => {
-    const currentMenuItem = menuItems.find(item => item.key === activeMenu);
-    return [
-      {
-        href: '#',
-        title: <HomeOutlined />,
-        onClick: () => setActiveMenu('dashboard')
-      },
-      {
-        href: '#',
-        title: currentMenuItem?.label || 'Dashboard',
-        onClick: () => {}
-      }
-    ];
-  };
-
   return (
-    <Layout style={{ minHeight: "100vh",marginLeft: isMobile ? 0 : collapsed ? 80 : 240, }}>
+    <Layout
+      style={{
+        minHeight: "100vh",
+        marginLeft: isMobile ? 0 : collapsed ? 80 : 240,
+      }}
+    >
       {isMobile && !collapsed && (
         <div
           style={{
@@ -303,15 +289,20 @@ const AppContent: React.FC = () => {
             justifyContent: "space-between",
             alignItems: "center",
             boxShadow: "0 1px 4px rgba(0,21,41,.08)",
-            position: "relative",
+            position: "fixed", // FIXED header
+            top: 0,
+            left: isMobile ? 0 : collapsed ? 80 : 240, // account for sidebar width
+            right: 0,
             zIndex: 999,
+            height: 64, // keep a consistent height
+            width: `calc(100% - ${isMobile ? 0 : collapsed ? 80 : 240}px)`, // avoid overlap
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
             {isMobile && (
               <Button
                 type="text"
-                icon={<ProjectOutlined />}
+                icon={<ProjectOutlined rotate={270} />}
                 onClick={() => setCollapsed(!collapsed)}
                 style={{ fontSize: "16px", marginRight: "8px" }}
                 aria-label="Toggle Menu"
@@ -320,7 +311,13 @@ const AppContent: React.FC = () => {
             {!isMobile && (
               <Button
                 type="text"
-                icon={collapsed ? <ProjectOutlined /> : <ProjectOutlined />}
+                icon={
+                  collapsed ? (
+                    <ProjectOutlined rotate={270} />
+                  ) : (
+                    <ProjectOutlined rotate={90} />
+                  )
+                }
                 onClick={() => setCollapsed(!collapsed)}
                 style={{ fontSize: "16px", marginRight: "8px" }}
                 aria-label={collapsed ? "Expand Sidebar" : "Collapse Sidebar"}
@@ -353,25 +350,15 @@ const AppContent: React.FC = () => {
         </Header>
         <Content
           style={{
-            padding: isMobile ? "16px" : "24px",
+            padding: isMobile ? "8px" : "24px",
             background: "#f5f5f5",
             minHeight: "calc(100vh - 64px)",
             marginLeft: 0,
             transition: "all 0.2s ease-in-out",
+            marginTop: 64, // offset for fixed header
+            overflowY: "auto",
           }}
         >
-          <div style={{
-            marginBottom: 16,
-            background: "#fff",
-            borderRadius: "6px",
-            padding: "12px 16px",
-            boxShadow: "0 1px 3px rgba(0,0,0,0.1)"
-          }}>
-            <Breadcrumb
-              items={getBreadcrumbItems()}
-              style={{ fontSize: "14px" }}
-            />
-          </div>
           {renderContent()}
         </Content>
       </Layout>

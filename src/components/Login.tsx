@@ -1,54 +1,56 @@
-import React, { useState } from 'react';
-import { Card, Form, Input, Button, Typography, Alert, Space, Tag } from 'antd';
-import { UserOutlined, LockOutlined, LoginOutlined } from '@ant-design/icons';
-import { useAuth } from '../contexts/AuthContext';
+import React, { useState } from "react";
+import { Card, Form, Input, Button, Typography, Alert, Space, Tag } from "antd";
+import { UserOutlined, LockOutlined, LoginOutlined } from "@ant-design/icons";
+import { useAuth } from "../contexts/AuthContext";
 
 const { Title, Paragraph } = Typography;
 
 const Login: React.FC = () => {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const { login } = useAuth();
 
   const onFinish = async (values: { email: string; password: string }) => {
     setLoading(true);
-    setError('');
-    
+    setError("");
+
     const success = await login(values.email, values.password);
-    
+
     if (!success) {
-      setError('Invalid credentials. Please try again.');
+      setError("Invalid credentials. Please try again.");
     }
-    
+
     setLoading(false);
   };
 
   const demoCredentials = [
-    { email: 'admin@construct.com', role: 'Admin', color: 'red' },
-    { email: 'manager@construct.com', role: 'Manager', color: 'blue' },
-    { email: 'incharge@construct.com', role: 'Incharge', color: 'green' },
-    { email: 'executive@construct.com', role: 'Executive', color: 'orange' }
+    { email: "admin@construct.com", role: "Admin", color: "red" },
+    { email: "manager@construct.com", role: "Manager", color: "blue" },
+    { email: "incharge@construct.com", role: "Incharge", color: "green" },
+    { email: "executive@construct.com", role: "Executive", color: "orange" },
   ];
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '20px'
-    }}>
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "20px",
+      }}
+    >
       <Card
         style={{
-          width: '100%',
+          width: "100%",
           maxWidth: 400,
-          boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
-          borderRadius: '12px'
+          boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
+          borderRadius: "12px",
         }}
       >
-        <div style={{ textAlign: 'center', marginBottom: 32 }}>
-          <Title level={2} style={{ color: '#1890ff', marginBottom: 8 }}>
+        <div style={{ textAlign: "center", marginBottom: 32 }}>
+          <Title level={3} style={{ color: "#1890ff", marginBottom: 8 }}>
             ConstructPM
           </Title>
           <Paragraph type="secondary">
@@ -67,32 +69,25 @@ const Login: React.FC = () => {
 
         <Form
           name="login"
-          initialValues={{ email: 'admin@construct.com', password: 'password' }}
+          initialValues={{ email: "admin@construct.com", password: "password" }}
           onFinish={onFinish}
           size="large"
         >
           <Form.Item
             name="email"
             rules={[
-              { required: true, message: 'Please input your email!' },
-              { type: 'email', message: 'Please enter a valid email!' }
+              { required: true, message: "Please input your email!" },
+              { type: "email", message: "Please enter a valid email!" },
             ]}
           >
-            <Input
-              prefix={<UserOutlined />}
-              placeholder="Email"
-              type="email"
-            />
+            <Input prefix={<UserOutlined />} placeholder="Email" type="email" />
           </Form.Item>
 
           <Form.Item
             name="password"
-            rules={[{ required: true, message: 'Please input your password!' }]}
+            rules={[{ required: true, message: "Please input your password!" }]}
           >
-            <Input.Password
-              prefix={<LockOutlined />}
-              placeholder="Password"
-            />
+            <Input.Password prefix={<LockOutlined />} placeholder="Password" />
           </Form.Item>
 
           <Form.Item>
@@ -109,21 +104,21 @@ const Login: React.FC = () => {
         </Form>
 
         <div style={{ marginTop: 24 }}>
-          <Title level={5} style={{ marginBottom: 16, textAlign: 'center' }}>
+          <Title level={5} style={{ marginBottom: 16, textAlign: "center" }}>
             Demo Credentials
           </Title>
-          <Space direction="vertical" style={{ width: '100%' }} size="small">
+          <Space direction="vertical" style={{ width: "100%" }} size="small">
             {demoCredentials.map((cred, index) => (
               <div
                 key={index}
                 style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  padding: '8px 12px',
-                  background: '#f8f9fa',
-                  borderRadius: '6px',
-                  fontSize: '12px'
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  padding: "8px 12px",
+                  background: "#f8f9fa",
+                  borderRadius: "6px",
+                  fontSize: "12px",
                 }}
               >
                 <span>{cred.email}</span>
@@ -131,12 +126,14 @@ const Login: React.FC = () => {
               </div>
             ))}
           </Space>
-          <div style={{ 
-            textAlign: 'center', 
-            marginTop: 12, 
-            color: '#666', 
-            fontSize: '12px' 
-          }}>
+          <div
+            style={{
+              textAlign: "center",
+              marginTop: 12,
+              color: "#666",
+              fontSize: "12px",
+            }}
+          >
             Password: <strong>password</strong> (for all accounts)
           </div>
         </div>

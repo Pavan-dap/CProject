@@ -20,6 +20,7 @@ import {
   Upload,
   message,
   InputNumber,
+  Badge,
 } from "antd";
 import {
   PlusOutlined,
@@ -40,7 +41,11 @@ import {
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { useData, Task } from "../contexts/DataContext";
 import { useAuth } from "../contexts/AuthContext";
-import { useRealTimeSync, useComponentRefresh, useUserManagement } from "../hooks/useRealTimeSync";
+import {
+  useRealTimeSync,
+  useComponentRefresh,
+  useUserManagement,
+} from "../hooks/useRealTimeSync";
 import dayjs from "dayjs";
 
 const { Title, Text, Paragraph } = Typography;
@@ -242,10 +247,12 @@ const Tasks: React.FC = () => {
         return (
           <div className="task-avatar">
             <Avatar size="small" style={{ backgroundColor: "#1890ff" }}>
-              {assignee?.name?.charAt(0) || '?'}
+              {assignee?.name?.charAt(0) || "?"}
             </Avatar>
             <div>
-              <div style={{ fontSize: "13px" }}>{assignee?.name || 'Unassigned'}</div>
+              <div style={{ fontSize: "13px" }}>
+                {assignee?.name || "Unassigned"}
+              </div>
               <div
                 style={{
                   fontSize: "11px",
@@ -253,7 +260,7 @@ const Tasks: React.FC = () => {
                   textTransform: "capitalize",
                 }}
               >
-                {assignee?.role || 'Unknown'}
+                {assignee?.role || "Unknown"}
               </div>
             </div>
           </div>
@@ -312,12 +319,17 @@ const Tasks: React.FC = () => {
       render: (record: Task) => (
         <Space size="small">
           <Tooltip title="View Details">
-            <Button
-              type="text"
-              icon={<EyeOutlined />}
+            <Badge
+              count={record.comments && record.comments.length}
               size="small"
-              onClick={() => handleView(record)}
-            />
+            >
+              <Button
+                type="text"
+                icon={<EyeOutlined />}
+                size="small"
+                onClick={() => handleView(record)}
+              />
+            </Badge>
           </Tooltip>
           <Tooltip title="Edit Task">
             <Button
@@ -327,17 +339,6 @@ const Tasks: React.FC = () => {
               onClick={() => handleEdit(record)}
             />
           </Tooltip>
-          {record.comments && record.comments.length > 0 && (
-            <Tooltip title={`${record.comments.length} Comments`}>
-              <Button
-                type="text"
-                icon={<MessageOutlined />}
-                size="small"
-                onClick={() => handleView(record)}
-                style={{ color: "#1890ff" }}
-              />
-            </Tooltip>
-          )}
           {record.status !== "completed" && user?.role !== "executive" && (
             <Tooltip title="Mark Complete">
               <Button
@@ -497,10 +498,10 @@ const Tasks: React.FC = () => {
                                       size={16}
                                       style={{ backgroundColor: "#1890ff" }}
                                     >
-                                      {assignee?.name?.charAt(0) || '?'}
+                                      {assignee?.name?.charAt(0) || "?"}
                                     </Avatar>
                                     <span style={{ marginLeft: 4 }}>
-                                      {assignee?.name || 'Unassigned'}
+                                      {assignee?.name || "Unassigned"}
                                     </span>
                                   </div>
 
@@ -541,22 +542,33 @@ const Tasks: React.FC = () => {
 
   return (
     <div>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: 24,
-        }}
+      <Row
+        justify="space-between"
+        align="middle"
+        gutter={[16, 16]} // gap between rows/columns
+        style={{ marginBottom: 12 }}
       >
-        <Title level={2} style={{ margin: 0 }}>
-          Task Management
-        </Title>
-        <Space>
+        <Col xs={24} sm={12} md={8}>
+          <Title level={3} style={{ margin: 0 }}>
+            Task Management
+          </Title>
+        </Col>
+
+        <Col
+          xs={24}
+          sm={12}
+          style={{
+            display: "flex",
+            alignItems: "self-end",
+            gap: 8,
+            justifyContent: "space-between",
+          }}
+        >
           <Tabs
             activeKey={viewType}
             onChange={(key) => setViewType(key as "table" | "kanban")}
             size="small"
+            tabBarStyle={{ marginBottom: 0 }}
             items={[
               { key: "table", label: "Table View" },
               { key: "kanban", label: "Kanban Board" },
@@ -567,8 +579,8 @@ const Tasks: React.FC = () => {
               Add Task
             </Button>
           )}
-        </Space>
-      </div>
+        </Col>
+      </Row>
 
       {viewType === "table" ? (
         <Card>
@@ -576,14 +588,17 @@ const Tasks: React.FC = () => {
             dataSource={userTasks}
             columns={columns}
             rowKey="id"
-            scroll={{ x: 1400 }}
+            scroll={{ x: "max-content" }}
             pagination={{
               pageSize: 10,
               showSizeChanger: true,
               showQuickJumper: true,
               showTotal: (total, range) =>
-                `${range[0]}-${range[1]} of ${total} tasks`,
+                `${range[0]}-${range[1]} of ${total}`,
+              size: "small",
+              position: ["topRight"],
             }}
+            size="small"
           />
         </Card>
       ) : (
@@ -794,6 +809,7 @@ const Tasks: React.FC = () => {
         open={isViewModalVisible}
         onCancel={() => setIsViewModalVisible(false)}
         width={900}
+        centered
         footer={[
           <Button
             key="edit"
@@ -834,7 +850,9 @@ const Tasks: React.FC = () => {
                   )}
                   <div style={{ marginBottom: 12 }}>
                     <Text strong>Assigned To: </Text>
-                    <Text>{getUser(viewingTask.assignedTo)?.name || 'Unassigned'}</Text>
+                    <Text>
+                      {getUser(viewingTask.assignedTo)?.name || "Unassigned"}
+                    </Text>
                   </div>
                   <div style={{ marginBottom: 12 }}>
                     <Text strong>Priority: </Text>
