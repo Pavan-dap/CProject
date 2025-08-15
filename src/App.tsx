@@ -248,13 +248,13 @@ const AppContent: React.FC = () => {
         >
           <Menu
             mode="inline"
-            selectedKeys={[activeMenu]}
+            selectedKeys={[getActiveMenuKey()]}
             items={filteredMenuItems.map((item) => ({
               key: item.key,
               icon: item.icon,
               label: item.label,
               onClick: () => {
-                setActiveMenu(item.key);
+                navigate(item.path);
                 // Auto-hide on mobile after selection
                 if (isMobile) {
                   setCollapsed(true);
