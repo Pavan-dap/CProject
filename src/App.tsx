@@ -47,6 +47,7 @@ const { Title } = Typography;
 
 type MenuItem = {
   key: string;
+  path: string;
   icon: React.ReactNode;
   label: string;
   roles: string[];
@@ -55,42 +56,49 @@ type MenuItem = {
 const menuItems: MenuItem[] = [
   {
     key: "dashboard",
+    path: "/dashboard",
     icon: <DashboardOutlined />,
     label: "Dashboard",
     roles: ["admin", "manager", "incharge", "executive"],
   },
   {
     key: "gantt",
+    path: "/timeline",
     icon: <CalendarOutlined />,
     label: "Timeline",
     roles: ["admin", "manager", "incharge"],
   },
   {
     key: "projects",
+    path: "/projects",
     icon: <ProjectOutlined />,
     label: "Projects",
     roles: ["admin", "manager", "incharge"],
   },
   {
     key: "tasks",
+    path: "/tasks",
     icon: <CheckSquareOutlined />,
     label: "Tasks",
     roles: ["admin", "manager", "incharge", "executive"],
   },
   {
     key: "reports",
+    path: "/reports",
     icon: <FileTextOutlined />,
     label: "Reports",
     roles: ["admin", "manager", "incharge"],
   },
   {
     key: "users",
+    path: "/users",
     icon: <TeamOutlined />,
     label: "Users",
     roles: ["admin", "manager"],
   },
   {
     key: "status-report",
+    path: "/status-report",
     icon: <FileTextOutlined />,
     label: "Status Report",
     roles: ["admin", "manager", "incharge"],
