@@ -1,5 +1,13 @@
 import React, { useState, useEffect, useCallback } from "react";
 import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
+import {
   Layout,
   Menu,
   Avatar,
@@ -39,6 +47,7 @@ const { Title } = Typography;
 
 type MenuItem = {
   key: string;
+  path: string;
   icon: React.ReactNode;
   label: string;
   roles: string[];
@@ -47,42 +56,49 @@ type MenuItem = {
 const menuItems: MenuItem[] = [
   {
     key: "dashboard",
+    path: "/dashboard",
     icon: <DashboardOutlined />,
     label: "Dashboard",
     roles: ["admin", "manager", "incharge", "executive"],
   },
   {
     key: "gantt",
+    path: "/timeline",
     icon: <CalendarOutlined />,
     label: "Timeline",
     roles: ["admin", "manager", "incharge"],
   },
   {
     key: "projects",
+    path: "/projects",
     icon: <ProjectOutlined />,
     label: "Projects",
     roles: ["admin", "manager", "incharge"],
   },
   {
     key: "tasks",
+    path: "/tasks",
     icon: <CheckSquareOutlined />,
     label: "Tasks",
     roles: ["admin", "manager", "incharge", "executive"],
   },
   {
     key: "reports",
+    path: "/reports",
     icon: <FileTextOutlined />,
     label: "Reports",
     roles: ["admin", "manager", "incharge"],
   },
   {
     key: "users",
+    path: "/users",
     icon: <TeamOutlined />,
     label: "Users",
     roles: ["admin", "manager"],
   },
   {
     key: "status-report",
+    path: "/status-report",
     icon: <FileTextOutlined />,
     label: "Status Report",
     roles: ["admin", "manager", "incharge"],
@@ -91,10 +107,19 @@ const menuItems: MenuItem[] = [
 
 const AppContent: React.FC = () => {
   const { user, logout } = useAuth();
-  const [activeMenu, setActiveMenu] = useState("dashboard");
+  const location = useLocation();
+  const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [isTablet, setIsTablet] = useState(false);
+
+  // Get active menu based on current path
+  const getActiveMenuKey = () => {
+    const currentItem = menuItems.find(
+      (item) => item.path === location.pathname
+    );
+    return currentItem?.key || "dashboard";
+  };
 
   const checkMobile = useCallback(() => {
     const mobile = window.innerWidth < 768;
@@ -114,22 +139,6 @@ const AppContent: React.FC = () => {
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
   }, [checkMobile]);
-
-  // Listen for data changes to ensure immediate UI updates
-  useEffect(() => {
-    const handleDataUpdate = () => {
-      // Force re-render on data updates
-      setActiveMenu((prev) => prev);
-    };
-
-    window.addEventListener("localStorageChange", handleDataUpdate);
-    return () =>
-      window.removeEventListener("localStorageChange", handleDataUpdate);
-  }, []);
-
-  if (!user) {
-    return <Login />;
-  }
 
   const filteredMenuItems = menuItems.filter((item) =>
     item.roles.includes(user.role)
@@ -156,27 +165,6 @@ const AppContent: React.FC = () => {
       onClick: logout,
     },
   ];
-
-  const renderContent = () => {
-    switch (activeMenu) {
-      case "dashboard":
-        return <Dashboard />;
-      case "gantt":
-        return <GanttChart />;
-      case "projects":
-        return <Projects />;
-      case "tasks":
-        return <Tasks />;
-      case "reports":
-        return <Reports />;
-      case "users":
-        return <Users />;
-      case "status-report":
-        return <ProjectStatusReport />;
-      default:
-        return <Dashboard />;
-    }
-  };
 
   const getRoleColor = (role: string) => {
     const colors = {
@@ -258,13 +246,13 @@ const AppContent: React.FC = () => {
         >
           <Menu
             mode="inline"
-            selectedKeys={[activeMenu]}
+            selectedKeys={[getActiveMenuKey()]}
             items={filteredMenuItems.map((item) => ({
               key: item.key,
               icon: item.icon,
               label: item.label,
               onClick: () => {
-                setActiveMenu(item.key);
+                navigate(item.path);
                 // Auto-hide on mobile after selection
                 if (isMobile) {
                   setCollapsed(true);
@@ -359,22 +347,47 @@ const AppContent: React.FC = () => {
             overflowY: "auto",
           }}
         >
-          {renderContent()}
+          <Routes>
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/timeline" element={<GanttChart />} />
+            <Route path="/projects" element={<Projects />} />
+            <Route path="/tasks" element={<Tasks />} />
+            <Route path="/reports" element={<Reports />} />
+            <Route path="/users" element={<Users />} />
+            <Route path="/status-report" element={<ProjectStatusReport />} />
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          </Routes>
         </Content>
       </Layout>
     </Layout>
   );
 };
 
+// Wrapper component to handle authentication routing
+const AuthenticatedApp: React.FC = () => {
+  const { user } = useAuth();
+
+  if (!user) {
+    return <Login />;
+  }
+
+  return <AppContent />;
+};
+
 const App: React.FC = () => {
   return (
-    <GlobalStateProvider>
-      <AuthProvider>
-        <DataProvider>
-          <AppContent />
-        </DataProvider>
-      </AuthProvider>
-    </GlobalStateProvider>
+    <Router>
+      <GlobalStateProvider>
+        <AuthProvider>
+          <DataProvider>
+            <Routes>
+              <Route path="/*" element={<AuthenticatedApp />} />
+            </Routes>
+          </DataProvider>
+        </AuthProvider>
+      </GlobalStateProvider>
+    </Router>
   );
 };
 
