@@ -138,10 +138,6 @@ const AppContent: React.FC = () => {
     return () => window.removeEventListener("resize", checkMobile);
   }, [checkMobile]);
 
-  if (!user) {
-    return <Login />;
-  }
-
   const filteredMenuItems = menuItems.filter((item) =>
     item.roles.includes(user.role)
   );
