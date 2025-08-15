@@ -107,10 +107,17 @@ const menuItems: MenuItem[] = [
 
 const AppContent: React.FC = () => {
   const { user, logout } = useAuth();
-  const [activeMenu, setActiveMenu] = useState("dashboard");
+  const location = useLocation();
+  const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [isTablet, setIsTablet] = useState(false);
+
+  // Get active menu based on current path
+  const getActiveMenuKey = () => {
+    const currentItem = menuItems.find(item => item.path === location.pathname);
+    return currentItem?.key || "dashboard";
+  };
 
   const checkMobile = useCallback(() => {
     const mobile = window.innerWidth < 768;
