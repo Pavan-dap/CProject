@@ -138,18 +138,6 @@ const AppContent: React.FC = () => {
     return () => window.removeEventListener("resize", checkMobile);
   }, [checkMobile]);
 
-  // Listen for data changes to ensure immediate UI updates
-  useEffect(() => {
-    const handleDataUpdate = () => {
-      // Force re-render on data updates
-      setActiveMenu((prev) => prev);
-    };
-
-    window.addEventListener("localStorageChange", handleDataUpdate);
-    return () =>
-      window.removeEventListener("localStorageChange", handleDataUpdate);
-  }, []);
-
   if (!user) {
     return <Login />;
   }
@@ -179,27 +167,6 @@ const AppContent: React.FC = () => {
       onClick: logout,
     },
   ];
-
-  const renderContent = () => {
-    switch (activeMenu) {
-      case "dashboard":
-        return <Dashboard />;
-      case "gantt":
-        return <GanttChart />;
-      case "projects":
-        return <Projects />;
-      case "tasks":
-        return <Tasks />;
-      case "reports":
-        return <Reports />;
-      case "users":
-        return <Users />;
-      case "status-report":
-        return <ProjectStatusReport />;
-      default:
-        return <Dashboard />;
-    }
-  };
 
   const getRoleColor = (role: string) => {
     const colors = {
