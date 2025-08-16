@@ -1,11 +1,10 @@
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
+from django.urls import path
 from . import views
 
-router = DefaultRouter()
-router.register(r'reports', views.ReportViewSet, basename='report')
-
 urlpatterns = [
-    path('', include(router.urls)),
-    path('public/<str:public_link>/', views.public_report_view, name='public_report'),
+    path('', views.ReportListCreateView.as_view(), name='report-list'),
+    path('<int:pk>/', views.ReportDetailView.as_view(), name='report-detail'),
+    path('project/<int:project_id>/status/', views.generate_project_status_report, name='project-status-report'),
+    path('project/<int:project_id>/gantt/', views.generate_gantt_data, name='gantt-data'),
+    path('dashboard/stats/', views.dashboard_stats, name='dashboard-stats'),
 ]
