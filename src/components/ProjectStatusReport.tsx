@@ -252,18 +252,18 @@ const ProjectStatusReport: React.FC<ProjectStatusReportProps> = ({
     <div style={{ padding: isPublic ? 0 : 6 }}>
       {!isPublic && (
         <Row
-          align="center"
+          // align="center"
           justify="space-between"
           gutter={[16, 16]} // spacing between columns
           style={{ marginBottom: 24 }}
         >
-          <Col xs={24} sm={12}>
-            <Title level={3} style={{ margin: 0 }}>
+          <Col xs={24} sm={10}>
+            <Title level={3} style={{ margin: 12 }}>
               Project Status Report
             </Title>
           </Col>
 
-          <Col xs={24} sm={12}>
+          <Col xs={24} sm={14} className="flex justify-end">
             <Space wrap={false}>
               <Select
                 value={selectedProject}
@@ -431,27 +431,26 @@ const ProjectStatusReport: React.FC<ProjectStatusReportProps> = ({
 
         {/* Detailed Block Information */}
         <Card title="Detailed Block Status" style={{ marginBottom: 24 }}>
-          <Collapse>
-            {hierarchy.blocks.map((block) => (
-              <Panel
-                header={
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                    }}
-                  >
-                    <Text strong>{block.blockName}</Text>
-                    <Progress
-                      percent={Math.round(block.completionPercentage)}
-                      size="small"
-                      style={{ width: 200 }}
-                    />
-                  </div>
-                }
-                key={block.blockName}
-              >
+          <Collapse
+            items={hierarchy.blocks.map((block) => ({
+              key: block.blockName,
+              label: (
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <Text strong>{block.blockName}</Text>
+                  <Progress
+                    percent={Math.round(block.completionPercentage)}
+                    size="small"
+                    style={{ width: 200 }}
+                  />
+                </div>
+              ),
+              children: (
                 <Row gutter={[16, 16]}>
                   {block.floors.map((floor) => (
                     <Col xs={24} sm={12} md={8} key={floor.floorNumber}>
@@ -517,9 +516,9 @@ const ProjectStatusReport: React.FC<ProjectStatusReportProps> = ({
                     </Col>
                   ))}
                 </Row>
-              </Panel>
-            ))}
-          </Collapse>
+              ),
+            }))}
+          />
         </Card>
 
         {/* Recent Task Updates with Photos */}
