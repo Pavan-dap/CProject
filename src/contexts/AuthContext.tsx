@@ -1,98 +1,75 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-
-export interface User {
-  id: number;
-  name: string;
-  email: string;
-  role: "admin" | "manager" | "incharge" | "executive";
-  avatar?: string;
-  projectIds?: number[];
-}
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import authService, { type User, type LoginRequest } from '../services/authService';
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string) => Promise<boolean>;
-  logout: () => void;
+  login: (credentials: LoginRequest) => Promise<void>;
+  logout: () => Promise<void>;
   loading: boolean;
+  isAuthenticated: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Mock users for demonstration
-const mockUsers: User[] = [
-  {
-    id: 1,
-    name: "Akhila Neti",
-    email: "admin@construct.com",
-    role: "admin",
-  },
-  {
-    id: 2,
-    name: "Nagarjuna Nitta",
-    email: "manager@construct.com",
-    role: "manager",
-    projectIds: [1, 2],
-  },
-  {
-    id: 3,
-    name: "Sarada Reddy",
-    email: "incharge@construct.com",
-    role: "incharge",
-    projectIds: [1],
-  },
-  {
-    id: 4,
-    name: "Sai Kumar",
-    email: "executive@construct.com",
-    role: "executive",
-    projectIds: [1, 2],
-  },
-];
-
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
+  const isAuthenticated = !!user && authService.isAuthenticated();
+
+  // Check if user is already logged in on app start
   useEffect(() => {
-    // Check if user is logged in from localStorage
-    const savedUser = localStorage.getItem("user");
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
-    setLoading(false);
+    const checkAuth = async () => {
+      if (authService.isAuthenticated()) {
+        try {
+          const profile = await authService.getProfile();
+          setUser(profile);
+        } catch (error) {
+          console.error('Failed to get user profile:', error);
+          authService.logout();
+        }
+      }
+      setLoading(false);
+    };
+
+    checkAuth();
   }, []);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const login = async (credentials: LoginRequest) => {
     setLoading(true);
-
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    const foundUser = mockUsers.find((u) => u.email === email);
-
-    if (foundUser) {
-      setUser(foundUser);
-      localStorage.setItem("user", JSON.stringify(foundUser));
+    try {
+      const response = await authService.login(credentials);
+      setUser(response.user);
+    } catch (error) {
+      console.error('Login failed:', error);
+      throw error;
+    } finally {
       setLoading(false);
-      return true;
     }
-
-    setLoading(false);
-    return false;
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem("user");
-    navigate("/"); // Assuming you have a navigate function to redirect
+  const logout = async () => {
+    setLoading(true);
+    try {
+      await authService.logout();
+      setUser(null);
+    } catch (error) {
+      console.error('Logout failed:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider 
+      value={{ 
+        user, 
+        login, 
+        logout, 
+        loading, 
+        isAuthenticated 
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -101,7 +78,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
+    throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
 };
