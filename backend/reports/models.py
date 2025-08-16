@@ -7,33 +7,43 @@ User = get_user_model()
 class Report(models.Model):
     REPORT_TYPES = [
         ('project_status', 'Project Status Report'),
-        ('task_summary', 'Task Summary Report'),
-        ('progress_report', 'Progress Report'),
-        ('dependency_report', 'Dependency Report'),
+        ('task_progress', 'Task Progress Report'),
+        ('user_performance', 'User Performance Report'),
+        ('project_summary', 'Project Summary Report'),
+        ('gantt_chart', 'Gantt Chart Report'),
     ]
     
     title = models.CharField(max_length=200)
-    report_type = models.CharField(max_length=50, choices=REPORT_TYPES)
-    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='reports', null=True, blank=True)
+    report_type = models.CharField(max_length=20, choices=REPORT_TYPES)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='reports', blank=True, null=True)
+    data = models.JSONField(default=dict)  # Store report data
     generated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='generated_reports')
     generated_at = models.DateTimeField(auto_now_add=True)
-    file_path = models.CharField(max_length=500, blank=True)
-    is_public = models.BooleanField(default=False)
-    public_link = models.CharField(max_length=100, unique=True, blank=True)
+    is_scheduled = models.BooleanField(default=False)
+    schedule_frequency = models.CharField(max_length=20, blank=True, null=True)  # daily, weekly, monthly
     
     class Meta:
         ordering = ['-generated_at']
     
     def __str__(self):
-        return f"{self.title} - {self.generated_at}"
+        return f"{self.title} - {self.get_report_type_display()}"
 
-class ReportShare(models.Model):
-    report = models.ForeignKey(Report, on_delete=models.CASCADE, related_name='shares')
-    shared_with_email = models.EmailField()
-    shared_by = models.ForeignKey(User, on_delete=models.CASCADE)
-    shared_at = models.DateTimeField(auto_now_add=True)
-    access_count = models.IntegerField(default=0)
-    last_accessed = models.DateTimeField(null=True, blank=True)
+class ReportSchedule(models.Model):
+    FREQUENCY_CHOICES = [
+        ('daily', 'Daily'),
+        ('weekly', 'Weekly'),
+        ('monthly', 'Monthly'),
+    ]
+    
+    name = models.CharField(max_length=200)
+    report_type = models.CharField(max_length=20, choices=Report.REPORT_TYPES)
+    frequency = models.CharField(max_length=10, choices=FREQUENCY_CHOICES)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, blank=True, null=True)
+    recipients = models.ManyToManyField(User, related_name='report_subscriptions')
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_schedules')
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_generated = models.DateTimeField(blank=True, null=True)
+    is_active = models.BooleanField(default=True)
     
     def __str__(self):
-        return f"{self.report.title} shared with {self.shared_with_email}"
+        return f"{self.name} ({self.frequency})"
