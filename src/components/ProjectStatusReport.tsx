@@ -252,18 +252,18 @@ const ProjectStatusReport: React.FC<ProjectStatusReportProps> = ({
     <div style={{ padding: isPublic ? 0 : 6 }}>
       {!isPublic && (
         <Row
-          align="center"
+          // align="center"
           justify="space-between"
           gutter={[16, 16]} // spacing between columns
           style={{ marginBottom: 24 }}
         >
-          <Col xs={24} sm={12}>
-            <Title level={3} style={{ margin: 0 }}>
+          <Col xs={24} sm={10}>
+            <Title level={3} style={{ margin: 12 }}>
               Project Status Report
             </Title>
           </Col>
 
-          <Col xs={24} sm={12}>
+          <Col xs={24} sm={14} className="flex justify-end">
             <Space wrap={false}>
               <Select
                 value={selectedProject}

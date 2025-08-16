@@ -115,7 +115,9 @@ const AppContent: React.FC = () => {
 
   // Get active menu based on current path
   const getActiveMenuKey = () => {
-    const currentItem = menuItems.find(item => item.path === location.pathname);
+    const currentItem = menuItems.find(
+      (item) => item.path === location.pathname
+    );
     return currentItem?.key || "dashboard";
   };
 
