@@ -1,119 +1,167 @@
-from rest_framework import viewsets, status
-from rest_framework.decorators import action
+from rest_framework import generics, permissions, status
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Q, Count, Avg
 from .models import Project, ProjectAssignment, ProjectHierarchy
-from .serializers import ProjectSerializer, ProjectAssignmentSerializer, ProjectHierarchyDetailSerializer
-from .filters import ProjectFilter
+from .serializers import (
+    ProjectSerializer, ProjectCreateSerializer, ProjectListSerializer,
+    ProjectAssignmentSerializer, ProjectHierarchySerializer
+)
 
-class ProjectViewSet(viewsets.ModelViewSet):
-    serializer_class = ProjectSerializer
-    permission_classes = [IsAuthenticated]
-    filter_backends = [DjangoFilterBackend]
-    filterset_class = ProjectFilter
+class ProjectListCreateView(generics.ListCreateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return ProjectCreateSerializer
+        return ProjectListSerializer
     
     def get_queryset(self):
         user = self.request.user
-        queryset = Project.objects.select_related('manager', 'created_by').prefetch_related('assignments', 'hierarchy')
+        queryset = Project.objects.all()
         
+        # Filter based on user role
         if user.role == 'admin':
-            return queryset
+            pass  # Admin can see all projects
         elif user.role == 'manager':
-            return queryset.filter(manager=user)
-        elif user.role == 'incharge':
-            return queryset.filter(assignments__user=user, assignments__is_active=True)
-        elif user.role == 'executive':
-            return queryset.filter(tasks__assigned_to=user).distinct()
+            queryset = queryset.filter(
+                Q(manager=user) | Q(assignments__user=user)
+            ).distinct()
+        else:
+            queryset = queryset.filter(assignments__user=user).distinct()
         
-        return queryset.none()
+        # Filter by status if provided
+        status_filter = self.request.query_params.get('status')
+        if status_filter:
+            queryset = queryset.filter(status=status_filter)
+        
+        return queryset.order_by('-created_at')
+
+class ProjectDetailView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = ProjectSerializer
+    permission_classes = [permissions.IsAuthenticated]
     
-    @action(detail=True, methods=['get'])
-    def hierarchy(self, request, pk=None):
-        project = self.get_object()
-        hierarchy = ProjectHierarchy.objects.filter(project=project).order_by('block_name', 'floor_number', 'unit_number')
-        serializer = ProjectHierarchyDetailSerializer(hierarchy, many=True)
-        return Response(serializer.data)
-    
-    @action(detail=True, methods=['get'])
-    def status_report(self, request, pk=None):
-        project = self.get_object()
-        
-        # Calculate detailed statistics
-        hierarchy_data = {}
-        for item in project.hierarchy.all():
-            block = item.block_name
-            floor = item.floor_number
-            
-            if block not in hierarchy_data:
-                hierarchy_data[block] = {}
-            if floor not in hierarchy_data[block]:
-                hierarchy_data[block][floor] = []
-            
-            hierarchy_data[block][floor].append({
-                'unit_number': item.unit_number,
-                'unit_type': item.unit_type,
-                'completion_percentage': float(item.completion_percentage),
-                'tasks': list(item.tasks.values('id', 'title', 'status', 'progress'))
-            })
-        
-        # Calculate overall statistics
-        total_tasks = project.tasks.count()
-        completed_tasks = project.tasks.filter(status='completed').count()
-        in_progress_tasks = project.tasks.filter(status='in-progress').count()
-        pending_tasks = project.tasks.filter(status='not-started').count()
-        
-        return Response({
-            'project': ProjectSerializer(project).data,
-            'hierarchy': hierarchy_data,
-            'statistics': {
-                'total_tasks': total_tasks,
-                'completed_tasks': completed_tasks,
-                'in_progress_tasks': in_progress_tasks,
-                'pending_tasks': pending_tasks,
-                'completion_rate': (completed_tasks / total_tasks * 100) if total_tasks > 0 else 0
-            }
-        })
-    
-    @action(detail=True, methods=['post'])
-    def assign_user(self, request, pk=None):
-        project = self.get_object()
+    def get_queryset(self):
+        user = self.request.user
+        if user.role == 'admin':
+            return Project.objects.all()
+        elif user.role == 'manager':
+            return Project.objects.filter(
+                Q(manager=user) | Q(assignments__user=user)
+            ).distinct()
+        else:
+            return Project.objects.filter(assignments__user=user).distinct()
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def assign_user_to_project(request, project_id):
+    try:
+        project = Project.objects.get(id=project_id)
         user_id = request.data.get('user_id')
         
-        try:
-            from accounts.models import User
-            user = User.objects.get(id=user_id)
-            assignment, created = ProjectAssignment.objects.get_or_create(
-                project=project,
-                user=user,
-                defaults={'assigned_by': request.user}
-            )
-            
-            if created:
-                return Response({'message': 'User assigned successfully'}, status=status.HTTP_201_CREATED)
-            else:
-                return Response({'message': 'User already assigned'}, status=status.HTTP_200_OK)
-                
-        except User.DoesNotExist:
-            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        if not user_id:
+            return Response({'error': 'user_id is required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Check permissions
+        if request.user.role not in ['admin', 'manager'] and project.manager != request.user:
+            return Response({'error': 'Permission denied'}, status=status.HTTP_403_FORBIDDEN)
+        
+        assignment, created = ProjectAssignment.objects.get_or_create(
+            project=project,
+            user_id=user_id,
+            defaults={'assigned_by': request.user}
+        )
+        
+        if not created:
+            assignment.is_active = True
+            assignment.save()
+        
+        serializer = ProjectAssignmentSerializer(assignment)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
+    except Project.DoesNotExist:
+        return Response({'error': 'Project not found'}, status=status.HTTP_404_NOT_FOUND)
 
-class ProjectHierarchyViewSet(viewsets.ModelViewSet):
-    queryset = ProjectHierarchy.objects.all()
-    serializer_class = ProjectHierarchyDetailSerializer
-    permission_classes = [IsAuthenticated]
+@api_view(['DELETE'])
+@permission_classes([permissions.IsAuthenticated])
+def remove_user_from_project(request, project_id, user_id):
+    try:
+        project = Project.objects.get(id=project_id)
+        
+        # Check permissions
+        if request.user.role not in ['admin', 'manager'] and project.manager != request.user:
+            return Response({'error': 'Permission denied'}, status=status.HTTP_403_FORBIDDEN)
+        
+        assignment = ProjectAssignment.objects.get(project=project, user_id=user_id)
+        assignment.is_active = False
+        assignment.save()
+        
+        return Response({'message': 'User removed from project'})
+        
+    except (Project.DoesNotExist, ProjectAssignment.DoesNotExist):
+        return Response({'error': 'Project or assignment not found'}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def project_hierarchy(request, project_id):
+    try:
+        project = Project.objects.get(id=project_id)
+        
+        # Check permissions
+        user = request.user
+        if user.role not in ['admin'] and project.manager != user and not project.assignments.filter(user=user, is_active=True).exists():
+            return Response({'error': 'Permission denied'}, status=status.HTTP_403_FORBIDDEN)
+        
+        hierarchy = ProjectHierarchy.objects.filter(project=project)
+        serializer = ProjectHierarchySerializer(hierarchy, many=True)
+        
+        # Group by blocks and floors
+        blocks_data = {}
+        for item in serializer.data:
+            block_name = item['block_name']
+            floor_number = item['floor_number']
+            
+            if block_name not in blocks_data:
+                blocks_data[block_name] = {}
+            
+            if floor_number not in blocks_data[block_name]:
+                blocks_data[block_name][floor_number] = []
+            
+            blocks_data[block_name][floor_number].append(item)
+        
+        return Response({
+            'project_id': project_id,
+            'blocks': blocks_data,
+            'raw_data': serializer.data
+        })
+        
+    except Project.DoesNotExist:
+        return Response({'error': 'Project not found'}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def project_stats(request):
+    user = request.user
     
-    def get_queryset(self):
-        user = self.request.user
-        queryset = ProjectHierarchy.objects.select_related('project').prefetch_related('tasks')
-        
-        if user.role == 'admin':
-            return queryset
-        elif user.role == 'manager':
-            return queryset.filter(project__manager=user)
-        elif user.role == 'incharge':
-            return queryset.filter(project__assignments__user=user, project__assignments__is_active=True)
-        elif user.role == 'executive':
-            return queryset.filter(tasks__assigned_to=user).distinct()
-        
-        return queryset.none()
+    if user.role == 'admin':
+        projects = Project.objects.all()
+    elif user.role == 'manager':
+        projects = Project.objects.filter(
+            Q(manager=user) | Q(assignments__user=user)
+        ).distinct()
+    else:
+        projects = Project.objects.filter(assignments__user=user).distinct()
+    
+    stats = {
+        'total_projects': projects.count(),
+        'by_status': {
+            'planning': projects.filter(status='planning').count(),
+            'in_progress': projects.filter(status='in-progress').count(),
+            'completed': projects.filter(status='completed').count(),
+            'on_hold': projects.filter(status='on-hold').count(),
+        },
+        'average_progress': projects.aggregate(avg_progress=Avg('progress'))['avg_progress'] or 0,
+        'total_units': sum(p.units for p in projects),
+    }
+    
+    return Response(stats)
