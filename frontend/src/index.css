@@ -1,0 +1,223 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* COMPLETELY remove all scrollbars from sidebar */
+.ant-layout-sider,
+.ant-layout-sider *,
+.ant-layout-sider .ant-layout-sider-children,
+.ant-layout-sider .ant-menu,
+.ant-layout-sider .ant-menu-root,
+.ant-layout-sider .ant-menu-inline,
+.ant-layout-sider .ant-menu-item-group,
+.ant-layout-sider .ant-menu-submenu,
+.ant-layout-sider .ant-menu-item {
+  overflow: hidden !important;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.ant-layout-sider::-webkit-scrollbar,
+.ant-layout-sider *::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* Ensure sidebar content doesn't exceed bounds */
+.ant-layout-sider-children {
+  height: 100vh !important;
+  max-height: 100vh !important;
+  overflow: hidden !important;
+}
+
+.ant-menu-inline {
+  max-height: calc(100vh - 64px) !important;
+  overflow: hidden !important;
+}
+
+/* Mobile-first responsive utilities */
+@media (max-width: 768px) {
+  .ant-layout-sider {
+    position: fixed !important;
+    height: 100vh !important;
+    z-index: 1000 !important;
+    overflow: hidden !important;
+  }
+
+  .ant-layout-sider-collapsed {
+    width: 0 !important;
+    min-width: 0 !important;
+    max-width: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .ant-table-wrapper {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .ant-table {
+    min-width: 100% !important;
+  }
+
+  .ant-table-tbody > tr > td {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+  }
+
+  .ant-card {
+    margin-bottom: 16px;
+  }
+
+  .ant-statistic {
+    text-align: center;
+  }
+
+  .ant-dropdown-menu {
+    font-size: 14px;
+  }
+
+  .ant-layout-content {
+    width: 100%;
+    margin-left: 0 !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .ant-layout-header {
+    padding: 0 12px !important;
+  }
+  
+  .ant-layout-content {
+    padding: 12px !important;
+  }
+  
+  .ant-card-body {
+    padding: 16px 12px;
+  }
+  
+  .ant-table-pagination {
+    text-align: center;
+    margin-top: 16px;
+  }
+  
+  .ant-btn {
+    font-size: 12px;
+  }
+  
+  .ant-typography h2 {
+    font-size: 20px;
+  }
+  
+  .ant-typography h3 {
+    font-size: 18px;
+  }
+  
+  .ant-typography h4 {
+    font-size: 16px;
+  }
+}
+
+/* Kanban board responsive */
+.kanban-column {
+  min-width: 280px;
+  max-width: 300px;
+}
+
+@media (max-width: 768px) {
+  .kanban-column {
+    min-width: 250px;
+    max-width: 280px;
+  }
+}
+
+@media (max-width: 480px) {
+  .kanban-column {
+    min-width: 200px;
+    max-width: 220px;
+  }
+}
+
+/* Chart responsive containers */
+.recharts-responsive-container {
+  min-height: 200px !important;
+}
+
+@media (max-width: 768px) {
+  .recharts-responsive-container {
+    min-height: 180px !important;
+  }
+}
+
+/* Ensure text doesn't overflow on small screens */
+.ant-table-cell {
+  word-break: break-word;
+}
+
+/* Global responsive table styles */
+.ant-table-wrapper {
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  border-radius: 6px;
+}
+
+.ant-table-wrapper .ant-table {
+  min-width: 600px !important;
+}
+
+@media (max-width: 768px) {
+  .ant-table-wrapper .ant-table {
+    min-width: 500px !important;
+  }
+
+  .ant-table-thead > tr > th,
+  .ant-table-tbody > tr > td {
+    padding: 8px 4px !important;
+    font-size: 12px !important;
+  }
+
+  .ant-table-pagination {
+    margin: 16px 0 0 0 !important;
+    text-align: center !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .ant-table-wrapper .ant-table {
+    min-width: 400px !important;
+  }
+
+  .ant-table-thead > tr > th,
+  .ant-table-tbody > tr > td {
+    padding: 6px 2px !important;
+    font-size: 11px !important;
+  }
+}
+
+/* Better mobile menu */
+@media (max-width: 768px) {
+  .ant-layout-sider-trigger {
+    display: none;
+  }
+}
+
+/* Loading states */
+.ant-spin-container {
+  min-height: 200px;
+}
+
+/* Avatar improvements */
+.task-avatar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+@media (max-width: 480px) {
+  .task-avatar span {
+    display: none;
+  }
+}
