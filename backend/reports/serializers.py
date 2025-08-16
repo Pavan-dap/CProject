@@ -1,26 +1,42 @@
 from rest_framework import serializers
-from .models import Report, ReportShare
+from .models import Report, ReportSchedule
 from accounts.serializers import UserSerializer
 from projects.serializers import ProjectSerializer
 
 class ReportSerializer(serializers.ModelSerializer):
-    generated_by_name = serializers.CharField(source='generated_by.get_full_name', read_only=True)
-    project_name = serializers.CharField(source='project.name', read_only=True)
+    generated_by = UserSerializer(read_only=True)
+    project = ProjectSerializer(read_only=True)
     
     class Meta:
         model = Report
-        fields = [
-            'id', 'title', 'report_type', 'project', 'project_name',
-            'generated_by', 'generated_by_name', 'generated_at',
-            'file_path', 'is_public', 'public_link'
-        ]
+        fields = ['id', 'title', 'report_type', 'project', 'data', 'generated_by',
+                 'generated_at', 'is_scheduled', 'schedule_frequency']
+        read_only_fields = ['generated_at', 'generated_by']
 
-class ReportShareSerializer(serializers.ModelSerializer):
-    shared_by_name = serializers.CharField(source='shared_by.get_full_name', read_only=True)
+class ReportCreateSerializer(serializers.ModelSerializer):
+    project_id = serializers.IntegerField(required=False, allow_null=True)
     
     class Meta:
-        model = ReportShare
-        fields = [
-            'id', 'report', 'shared_with_email', 'shared_by', 'shared_by_name',
-            'shared_at', 'access_count', 'last_accessed'
-        ]
+        model = Report
+        fields = ['title', 'report_type', 'project_id', 'data']
+    
+    def create(self, validated_data):
+        project_id = validated_data.pop('project_id', None)
+        if project_id:
+            from projects.models import Project
+            project = Project.objects.get(id=project_id)
+            validated_data['project'] = project
+        
+        validated_data['generated_by'] = self.context['request'].user
+        return Report.objects.create(**validated_data)
+
+class ReportScheduleSerializer(serializers.ModelSerializer):
+    recipients = UserSerializer(many=True, read_only=True)
+    created_by = UserSerializer(read_only=True)
+    project = ProjectSerializer(read_only=True)
+    
+    class Meta:
+        model = ReportSchedule
+        fields = ['id', 'name', 'report_type', 'frequency', 'project', 'recipients',
+                 'created_by', 'created_at', 'last_generated', 'is_active']
+        read_only_fields = ['created_at', 'last_generated', 'created_by']
