@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
 import { useAuth } from "./AuthContext";
 
 export interface Project {
@@ -53,7 +59,7 @@ export interface User {
   projects?: string[];
   joinDate: string;
   avatar?: string;
-  confirmPassword?: string;   // ✅ NEW
+  confirmPassword?: string; // ✅ NEW
 }
 
 export interface Comment {
@@ -76,7 +82,10 @@ interface DataContextType {
   tasks: Task[];
   users: User[];
   getProjectHierarchy: (projectId: number) => ProjectHierarchy;
-  getTaskDependencies: (taskId: number) => { dependencies: Task[]; dependents: Task[] };
+  getTaskDependencies: (taskId: number) => {
+    dependencies: Task[];
+    dependents: Task[];
+  };
   canStartTask: (taskId: number) => boolean;
   getTaskComments: (taskId: number) => Comment[];
   addTaskComment: (taskId: number, comment: Omit<Comment, "id">) => void;
@@ -96,16 +105,21 @@ interface DataContextType {
 const DataContext = createContext<DataContextType | undefined>(undefined);
 const API_BASE = import.meta.env.VITE_API_BASE || "http://127.0.0.1:8000";
 
-export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const DataProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const { token } = useAuth();
   const [projects, setProjects] = useState<Project[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [users, setUsers] = useState<User[]>([]);
 
-  const authHeader = useCallback(() => ({
-    Authorization: `Bearer ${token}`,
-    "Content-Type": "application/json",
-  }), [token]);
+  const authHeader = useCallback(
+    () => ({
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    }),
+    [token]
+  );
 
   // Map backend -> frontend shape
   const mapProject = (p: any): Project => ({
@@ -144,17 +158,21 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   });
 
   const mapUser = (u: any): User => ({
-  id: u.id,
-  name: `${u.first_name || ""} ${u.last_name || ""}`.trim() || u.username,
-  email: u.email,
-  role: u.role,
-  phone: u.phone || "",
-  status: u.status || "active",
-  projects: [],
-  joinDate: u.join_date,
-  confirmPassword: u.confirm_password || "",   // ✅ add
-});
-
+    id: u.id,
+    name: `${u.first_name || ""} ${u.last_name || ""}`.trim() || u.username,
+    email: u.email,
+    role: u.role,
+    phone: u.phone || "",
+    status: u.status || "active",
+    projects: u.projects
+      ? u.projects.map((p: any) => ({
+          id: p.id,
+          name: p.name,
+        }))
+      : [],
+    joinDate: u.join_date,
+    confirmPassword: u.confirm_password || "", // ✅ add
+  });
 
   const fetchAll = useCallback(async () => {
     if (!token) return;
@@ -163,26 +181,36 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       fetch(`${API_BASE}/api/tasks/`, { headers: authHeader() }),
       fetch(`${API_BASE}/api/users/`, { headers: authHeader() }),
     ]);
-    const [pJson, tJson, uJson] = await Promise.all([pRes.json(), tRes.json(), uRes.json()]);
+    const [pJson, tJson, uJson] = await Promise.all([
+      pRes.json(),
+      tRes.json(),
+      uRes.json(),
+    ]);
     setProjects(pJson.map(mapProject));
     setTasks(tJson.map(mapTask));
     setUsers(uJson.map(mapUser));
   }, [token, authHeader]);
 
-  useEffect(() => { fetchAll(); }, [fetchAll]);
+  useEffect(() => {
+    fetchAll();
+  }, [fetchAll]);
 
   // ----- helpers -----
   const getProjectHierarchy = (projectId: number): ProjectHierarchy => ({
     projectId,
     blocks: [],
-    overallCompletion: projects.find(p => p.id === projectId)?.progress || 0,
+    overallCompletion: projects.find((p) => p.id === projectId)?.progress || 0,
   });
 
   const getTaskDependencies = (taskId: number) => {
-    const task = tasks.find(t => t.id === taskId);
+    const task = tasks.find((t) => t.id === taskId);
     if (!task) return { dependencies: [], dependents: [] };
-    const dependencies = (task.dependencies || []).map(depId => tasks.find(t => t.id === depId)).filter(Boolean) as Task[];
-    const dependents = tasks.filter(t => (t.dependencies || []).includes(taskId));
+    const dependencies = (task.dependencies || [])
+      .map((depId) => tasks.find((t) => t.id === depId))
+      .filter(Boolean) as Task[];
+    const dependents = tasks.filter((t) =>
+      (t.dependencies || []).includes(taskId)
+    );
     return { dependencies, dependents };
   };
 
@@ -190,7 +218,10 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setTasks((prevTasks) =>
       prevTasks.map((task) =>
         task.id === taskId
-          ? { ...task, dependencies: [...(task.dependencies || []), dependencyId] }
+          ? {
+              ...task,
+              dependencies: [...(task.dependencies || []), dependencyId],
+            }
           : task
       )
     );
@@ -222,7 +253,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       body: JSON.stringify(payload),
     });
     const created = await res.json();
-    setProjects(prev => [...prev, mapProject(created)]);
+    setProjects((prev) => [...prev, mapProject(created)]);
   };
 
   const updateProject = async (id: number, updates: Partial<Project>) => {
@@ -231,21 +262,35 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       headers: authHeader(),
       body: JSON.stringify({
         ...(updates.name !== undefined ? { name: updates.name } : {}),
-        ...(updates.location !== undefined ? { location: updates.location } : {}),
+        ...(updates.location !== undefined
+          ? { location: updates.location }
+          : {}),
         ...(updates.client !== undefined ? { client: updates.client } : {}),
-        ...(updates.startDate !== undefined ? { start_date: updates.startDate } : {}),
+        ...(updates.startDate !== undefined
+          ? { start_date: updates.startDate }
+          : {}),
         ...(updates.endDate !== undefined ? { end_date: updates.endDate } : {}),
-        ...(updates.buildings !== undefined ? { buildings: updates.buildings } : {}),
+        ...(updates.buildings !== undefined
+          ? { buildings: updates.buildings }
+          : {}),
         ...(updates.floors !== undefined ? { floors: updates.floors } : {}),
         ...(updates.units !== undefined ? { units: updates.units } : {}),
-        ...(updates.managerId !== undefined ? { manager: updates.managerId } : {}),
-        ...(updates.progress !== undefined ? { progress: updates.progress } : {}),
+        ...(updates.managerId !== undefined
+          ? { manager: updates.managerId }
+          : {}),
+        ...(updates.progress !== undefined
+          ? { progress: updates.progress }
+          : {}),
         ...(updates.status !== undefined ? { status: updates.status } : {}),
-        ...(updates.description !== undefined ? { description: updates.description } : {}),
+        ...(updates.description !== undefined
+          ? { description: updates.description }
+          : {}),
       }),
     });
     const updated = await res.json();
-    setProjects(prev => prev.map(p => p.id === id ? mapProject(updated) : p));
+    setProjects((prev) =>
+      prev.map((p) => (p.id === id ? mapProject(updated) : p))
+    );
   };
 
   const addTask = async (task: Omit<Task, "id">) => {
@@ -271,21 +316,25 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       body: JSON.stringify(payload),
     });
     const created = await res.json();
-    setTasks(prev => [...prev, mapTask(created)]);
+    setTasks((prev) => [...prev, mapTask(created)]);
   };
 
   const updateTask = async (id: number, updates: Partial<Task>) => {
     const payload: any = {};
     if (updates.title !== undefined) payload.title = updates.title;
-    if (updates.description !== undefined) payload.description = updates.description;
+    if (updates.description !== undefined)
+      payload.description = updates.description;
     if (updates.projectId !== undefined) payload.project = updates.projectId;
-    if (updates.assignedTo !== undefined) payload.assigned_to = updates.assignedTo;
-    if (updates.assignedBy !== undefined) payload.assigned_by = updates.assignedBy;
+    if (updates.assignedTo !== undefined)
+      payload.assigned_to = updates.assignedTo;
+    if (updates.assignedBy !== undefined)
+      payload.assigned_by = updates.assignedBy;
     if (updates.status !== undefined) payload.status = updates.status;
     if (updates.progress !== undefined) payload.progress = updates.progress;
     if (updates.priority !== undefined) payload.priority = updates.priority;
     if (updates.dueDate !== undefined) payload.due_date = updates.dueDate;
-    if (updates.createdDate !== undefined) payload.created_date = updates.createdDate;
+    if (updates.createdDate !== undefined)
+      payload.created_date = updates.createdDate;
     if (updates.building !== undefined) payload.building = updates.building;
     if (updates.floor !== undefined) payload.floor = updates.floor;
     if (updates.unit !== undefined) payload.unit = updates.unit;
@@ -297,14 +346,18 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       body: JSON.stringify(payload),
     });
     const updated = await res.json();
-    setTasks(prev => prev.map(t => t.id === id ? mapTask(updated) : t));
+    setTasks((prev) => prev.map((t) => (t.id === id ? mapTask(updated) : t)));
   };
 
   const addUser = async (user: Omit<User, "id">) => {
     const payload = {
-      username: user.email.split("@")[0],
+      // username: user.email.split("@")[0],
+      username: `${user.first_name}.${user.last_name}`.toLowerCase(),
       email: user.email,
-      first_name: user.name,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      password: user.password, // ✅ add password
+      confirm_password: user.password,
       role: user.role,
       phone: user.phone,
       status: user.status,
@@ -316,7 +369,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       body: JSON.stringify(payload),
     });
     const created = await res.json();
-    setUsers(prev => [...prev, mapUser(created)]);
+    setUsers((prev) => [...prev, mapUser(created)]);
   };
 
   const updateUser = async (id: number, updates: Partial<User>) => {
@@ -335,7 +388,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       body: JSON.stringify(payload),
     });
     const updated = await res.json();
-    setUsers(prev => prev.map(u => u.id === id ? mapUser(updated) : u));
+    setUsers((prev) => prev.map((u) => (u.id === id ? mapUser(updated) : u)));
   };
 
   const deleteUser = async (id: number) => {
@@ -343,12 +396,12 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       method: "DELETE",
       headers: authHeader(),
     });
-    setUsers(prev => prev.filter(u => u.id !== id));
+    setUsers((prev) => prev.filter((u) => u.id !== id));
   };
 
-  const getUserById = (id: number) => users.find(u => u.id === id);
-  const getActiveUsers = () => users.filter(u => u.status === "active");
-  const getUsersByRole = (role: string) => users.filter(u => u.role === role);
+  const getUserById = (id: number) => users.find((u) => u.id === id);
+  const getActiveUsers = () => users.filter((u) => u.status === "active");
+  const getUsersByRole = (role: string) => users.filter((u) => u.role === role);
 
   const value: DataContextType = {
     projects,
