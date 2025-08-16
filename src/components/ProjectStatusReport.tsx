@@ -431,27 +431,26 @@ const ProjectStatusReport: React.FC<ProjectStatusReportProps> = ({
 
         {/* Detailed Block Information */}
         <Card title="Detailed Block Status" style={{ marginBottom: 24 }}>
-          <Collapse>
-            {hierarchy.blocks.map((block) => (
-              <Panel
-                header={
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                    }}
-                  >
-                    <Text strong>{block.blockName}</Text>
-                    <Progress
-                      percent={Math.round(block.completionPercentage)}
-                      size="small"
-                      style={{ width: 200 }}
-                    />
-                  </div>
-                }
-                key={block.blockName}
-              >
+          <Collapse
+            items={hierarchy.blocks.map((block) => ({
+              key: block.blockName,
+              label: (
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <Text strong>{block.blockName}</Text>
+                  <Progress
+                    percent={Math.round(block.completionPercentage)}
+                    size="small"
+                    style={{ width: 200 }}
+                  />
+                </div>
+              ),
+              children: (
                 <Row gutter={[16, 16]}>
                   {block.floors.map((floor) => (
                     <Col xs={24} sm={12} md={8} key={floor.floorNumber}>
@@ -465,9 +464,8 @@ const ProjectStatusReport: React.FC<ProjectStatusReportProps> = ({
                         <Text type="secondary">
                           {floor.units.length} units •{" "}
                           {
-                            floor.units.filter(
-                              (u) => u.completionPercentage === 100
-                            ).length
+                            floor.units.filter((u) => u.completionPercentage === 100)
+                              .length
                           }{" "}
                           completed
                         </Text>
@@ -495,8 +493,8 @@ const ProjectStatusReport: React.FC<ProjectStatusReportProps> = ({
                                     unit.completionPercentage === 100
                                       ? "#52c41a"
                                       : unit.completionPercentage > 0
-                                      ? "#1890ff"
-                                      : "#d9d9d9",
+                                        ? "#1890ff"
+                                        : "#d9d9d9",
                                   display: "flex",
                                   alignItems: "center",
                                   justifyContent: "center",
@@ -504,9 +502,9 @@ const ProjectStatusReport: React.FC<ProjectStatusReportProps> = ({
                                   color: "#fff",
                                   fontWeight: "bold",
                                 }}
-                                title={`Unit ${unit.unitNumber} (${
-                                  unit.unitType
-                                }) - ${Math.round(unit.completionPercentage)}%`}
+                                title={`Unit ${unit.unitNumber} (${unit.unitType}) - ${Math.round(
+                                  unit.completionPercentage
+                                )}%`}
                               >
                                 {unit.unitNumber?.slice(-1) || "?"}
                               </div>
@@ -517,9 +515,9 @@ const ProjectStatusReport: React.FC<ProjectStatusReportProps> = ({
                     </Col>
                   ))}
                 </Row>
-              </Panel>
-            ))}
-          </Collapse>
+              ),
+            }))}
+          />
         </Card>
 
         {/* Recent Task Updates with Photos */}
