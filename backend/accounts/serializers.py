@@ -2,18 +2,36 @@ from rest_framework import serializers
 from django.contrib.auth import authenticate
 from .models import User, UserProfile
 
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'role', 'phone', 'avatar', 'is_active', 'created_at']
-        read_only_fields = ['id', 'created_at']
-
 class UserProfileSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
-    
     class Meta:
         model = UserProfile
-        fields = ['user', 'department', 'employee_id', 'join_date', 'reporting_manager']
+        fields = ['department', 'employee_id', 'join_date', 'reporting_manager']
+
+class UserSerializer(serializers.ModelSerializer):
+    profile = UserProfileSerializer(read_only=True)
+    password = serializers.CharField(write_only=True)
+    
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'role', 
+                 'phone', 'avatar', 'is_active', 'created_at', 'updated_at', 'profile']
+        read_only_fields = ['id', 'created_at', 'updated_at']
+    
+    def create(self, validated_data):
+        password = validated_data.pop('password')
+        user = User.objects.create_user(**validated_data)
+        user.set_password(password)
+        user.save()
+        return user
+    
+    def update(self, instance, validated_data):
+        password = validated_data.pop('password', None)
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        if password:
+            instance.set_password(password)
+        instance.save()
+        return instance
 
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()
@@ -31,19 +49,20 @@ class LoginSerializer(serializers.Serializer):
                 else:
                     raise serializers.ValidationError('User account is disabled.')
             else:
-                raise serializers.ValidationError('Unable to login with provided credentials.')
+                raise serializers.ValidationError('Unable to log in with provided credentials.')
         else:
             raise serializers.ValidationError('Must include username and password.')
         
         return data
 
-class RegisterSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True)
+class UserCreateSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, min_length=8)
     password_confirm = serializers.CharField(write_only=True)
     
     class Meta:
         model = User
-        fields = ['username', 'email', 'first_name', 'last_name', 'role', 'phone', 'password', 'password_confirm']
+        fields = ['username', 'email', 'first_name', 'last_name', 'role', 
+                 'phone', 'password', 'password_confirm']
     
     def validate(self, data):
         if data['password'] != data['password_confirm']:
