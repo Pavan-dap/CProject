@@ -1,12 +1,13 @@
 from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated,IsAdminUser
+from rest_framework.permissions import IsAuthenticated,IsAdminUser,AllowAny
 from .models import User, Project, Task
 from .serializers import UserSerializer, ProjectSerializer, TaskSerializer
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all().order_by('id')
     serializer_class = UserSerializer
-    permission_classes = [IsAdminUser]  # Only admin can create/update/delete users
+     # permission_classes = [IsAdminUser]  # Only admin can create/update/delete users
+    permission_classes = [AllowAny] 
 
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all().order_by('id')
