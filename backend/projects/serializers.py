@@ -60,21 +60,25 @@ class UserSerializer(serializers.ModelSerializer):
         return data
 
     def create(self, validated_data):
-        # Remove confirm_password before creating
-        # validated_data.pop('confirm_password', None)
         password = validated_data.pop('password', None)
+        confirm_password = validated_data.pop('confirm_password', None)
+
         user = User(**validated_data)
         if password:
-            user.set_password(password)  # hash password
+            user.set_password(password)
+        user.confirm_password = confirm_password  # Store in DB
         user.save()
         return user
 
     def update(self, instance, validated_data):
-        validated_data.pop('confirm_password', None)
         password = validated_data.pop('password', None)
+        confirm_password = validated_data.pop('confirm_password', None)
+
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
+
         if password:
             instance.set_password(password)
+        instance.confirm_password = confirm_password  # Update in DB
         instance.save()
         return instance

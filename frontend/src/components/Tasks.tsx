@@ -26,10 +26,7 @@ import {
   PlusOutlined,
   EditOutlined,
   EyeOutlined,
-  // DeleteOutlined,
-  // UserOutlined,
   CalendarOutlined,
-  // FileImageOutlined,
   UploadOutlined,
   CheckOutlined,
   ClockCircleOutlined,
@@ -37,7 +34,7 @@ import {
   LinkOutlined,
   CameraOutlined,
 } from "@ant-design/icons";
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { useData, Task } from "../contexts/DataContext";
 import { useAuth } from "../contexts/AuthContext";
 import {
@@ -384,7 +381,8 @@ const Tasks: React.FC = () => {
     const { source, destination, draggableId } = result;
 
     if (source.droppableId !== destination.droppableId) {
-      handleStatusChange(parseInt(draggableId), destination.droppableId);
+      // handleStatusChange(parseInt(draggableId), destination.droppableId);
+      handleStatusChange(Number(draggableId), destination.droppableId);
     }
   };
 
@@ -434,95 +432,110 @@ const Tasks: React.FC = () => {
 
                         return (
                           <Draggable
-                            key={task.id}
+                            key={task.id.toString()}
                             draggableId={task.id.toString()}
                             index={index}
                           >
                             {(provided, snapshot) => (
-                              <Card
+                              <div
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
                                 {...provided.dragHandleProps}
-                                size="small"
-                                className={`kanban-card ${task.status}`}
                                 style={{
                                   marginBottom: 12,
-                                  cursor: "pointer",
                                   transform: snapshot.isDragging
                                     ? "rotate(5deg)"
                                     : "none",
                                   ...provided.draggableProps.style,
                                 }}
-                                hoverable
-                                onClick={() => handleEdit(task)}
                               >
-                                <div style={{ marginBottom: 8 }}>
-                                  <Text
-                                    strong
+                                <Card
+                                  size="small"
+                                  className={`kanban-card ${task.status}`}
+                                  hoverable
+                                >
+                                  <div
                                     style={{
-                                      fontSize: "13px",
-                                      display: "block",
+                                      display: "flex",
+                                      justifyContent: "space-between",
+                                      alignItems: "center",
+                                      marginBottom: 8,
                                     }}
                                   >
-                                    {task.title.length > 50
-                                      ? task.title.substring(0, 50) + "..."
-                                      : task.title}
-                                  </Text>
+                                    <Text
+                                      strong
+                                      style={{
+                                        fontSize: "13px",
+                                        display: "block",
+                                      }}
+                                    >
+                                      {task.title.length > 50
+                                        ? task.title.substring(0, 50) + "..."
+                                        : task.title}
+                                    </Text>
+                                    <Button
+                                      type="text"
+                                      icon={<EditOutlined />}
+                                      size="small"
+                                      onClick={() => handleEdit(task)}
+                                    />
+                                  </div>
+
                                   <Text
                                     type="secondary"
                                     style={{ fontSize: "11px" }}
                                   >
                                     {project?.name}
                                   </Text>
-                                </div>
 
-                                <div style={{ marginBottom: 8 }}>
-                                  <Progress
-                                    percent={task.progress}
-                                    size="small"
-                                    showInfo={false}
-                                  />
-                                </div>
-
-                                <div
-                                  style={{
-                                    display: "flex",
-                                    justifyContent: "space-between",
-                                    alignItems: "center",
-                                    fontSize: "11px",
-                                  }}
-                                >
-                                  <div className="task-avatar">
-                                    <Avatar
-                                      size={16}
-                                      style={{ backgroundColor: "#1890ff" }}
-                                    >
-                                      {assignee?.name?.charAt(0) || "?"}
-                                    </Avatar>
-                                    <span style={{ marginLeft: 4 }}>
-                                      {assignee?.name || "Unassigned"}
-                                    </span>
+                                  <div style={{ marginBottom: 8 }}>
+                                    <Progress
+                                      percent={task.progress}
+                                      size="small"
+                                      showInfo={false}
+                                    />
                                   </div>
 
-                                  <Tag
-                                    color={getPriorityColor(task.priority)}
-                                    size="small"
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      justifyContent: "space-between",
+                                      alignItems: "center",
+                                      fontSize: "11px",
+                                    }}
                                   >
-                                    {task.priority}
-                                  </Tag>
-                                </div>
+                                    <div className="task-avatar">
+                                      <Avatar
+                                        size={16}
+                                        style={{ backgroundColor: "#1890ff" }}
+                                      >
+                                        {assignee?.name?.charAt(0) || "?"}
+                                      </Avatar>
+                                      <span style={{ marginLeft: 4 }}>
+                                        {assignee?.name || "Unassigned"}
+                                      </span>
+                                    </div>
 
-                                <div
-                                  style={{
-                                    fontSize: "10px",
-                                    color: "#999",
-                                    marginTop: 4,
-                                    textAlign: "right",
-                                  }}
-                                >
-                                  Due: {dayjs(task.dueDate).format("MMM DD")}
-                                </div>
-                              </Card>
+                                    <Tag
+                                      color={getPriorityColor(task.priority)}
+                                      size="small"
+                                    >
+                                      {task.priority}
+                                    </Tag>
+                                  </div>
+
+                                  <div
+                                    style={{
+                                      fontSize: "10px",
+                                      color: "#999",
+                                      marginTop: 4,
+                                      textAlign: "right",
+                                    }}
+                                  >
+                                    Due: {dayjs(task.dueDate).format("MMM DD")}
+                                  </div>
+                                </Card>
+                              </div>
                             )}
                           </Draggable>
                         );
@@ -586,7 +599,7 @@ const Tasks: React.FC = () => {
           <Table
             dataSource={userTasks}
             columns={columns}
-            rowKey="id"
+            rowKey={(record) => record.id.toString()}
             scroll={{ x: "max-content" }}
             pagination={{
               pageSize: 10,

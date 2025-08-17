@@ -13,6 +13,9 @@ class User(AbstractUser):
     status = models.CharField(max_length=20, default="active")
     join_date = models.DateField(auto_now_add=True)
 
+    # ❗️ Not recommended unless you have a very specific (non-security) reason
+    confirm_password = models.CharField(max_length=128, blank=True, null=True)
+
     def __str__(self):
         return f"{self.username} ({self.role})"
 
