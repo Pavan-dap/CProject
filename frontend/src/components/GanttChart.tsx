@@ -941,9 +941,9 @@ interface TimelineItem {
 const GanttChart: React.FC = () => {
   const { user } = useAuth();
   const { projects, tasks } = useData();
-  console.log("projects", projects);
-  console.log("tasks", tasks);
-  
+  // console.log("projects", projects);
+  // console.log("tasks", tasks);
+
   const ganttRef = useRef<HTMLDivElement>(null);
   const getQuarter = (date: dayjs.Dayjs) => Math.floor(date.month() / 3) + 1;
 
@@ -970,9 +970,9 @@ const GanttChart: React.FC = () => {
     user?.role === "admin"
       ? projects
       : projects.filter(
-          (p) =>
-            user?.role === "admin" || user?.projects?.includes(String(p.id))
-        );
+        (p) =>
+          user?.role === "admin" || user?.projects?.includes(String(p.id))
+      );
 
   let userTasks =
     user?.role === "executive"
@@ -1025,7 +1025,7 @@ const GanttChart: React.FC = () => {
       // Add project
       const projectTasks = userTasks.filter((t) => t.projectId === project.id);
       const hasChildren = projectTasks.length > 0;
-      
+
       allItems.push({
         id: `project-${project.id}`,
         name: project.name,
@@ -1228,13 +1228,13 @@ const GanttChart: React.FC = () => {
               <Option value="month">Month View</Option>
               <Option value="quarter">Quarter View</Option>
             </Select>
-            <Button 
+            <Button
               onClick={() => setExpandedProjects(new Set(userProjects.map(p => p.id)))}
               size="small"
             >
               Expand All
             </Button>
-            <Button 
+            <Button
               onClick={() => setExpandedProjects(new Set())}
               size="small"
             >
@@ -1523,9 +1523,9 @@ const GanttChart: React.FC = () => {
                   display: "flex",
                   borderBottom: "1px solid #f0f0f0",
                   minHeight: "50px",
-                  backgroundColor: 
-                    item.type === "project" 
-                      ? "#f0f9ff" 
+                  backgroundColor:
+                    item.type === "project"
+                      ? "#f0f9ff"
                       : index % 2 === 0 ? "#fff" : "#fafafa",
                 }}
               >
@@ -1561,7 +1561,7 @@ const GanttChart: React.FC = () => {
                           )
                         }
                         onClick={() => toggleProjectExpansion(item.projectId!)}
-                        style={{ 
+                        style={{
                           marginRight: 8,
                           padding: 0,
                           width: 16,
@@ -1570,7 +1570,7 @@ const GanttChart: React.FC = () => {
                         }}
                       />
                     )}
-                    
+
                     <div style={{ flex: 1 }}>
                       <div
                         style={{
@@ -1671,16 +1671,16 @@ const GanttChart: React.FC = () => {
                   >
                     {timelineView === "week"
                       ? Array.from({ length: totalDays }, (_, i) => (
-                          <div
-                            key={i}
-                            style={{
-                              width: `${(1 / totalDays) * 100}%`,
-                              borderRight: "1px solid #f0f0f0",
-                            }}
-                          />
-                        ))
+                        <div
+                          key={i}
+                          style={{
+                            width: `${(1 / totalDays) * 100}%`,
+                            borderRight: "1px solid #f0f0f0",
+                          }}
+                        />
+                      ))
                       : timelineView === "quarter"
-                      ? Array.from(
+                        ? Array.from(
                           { length: Math.ceil(totalDays / 30) },
                           (_, i) => (
                             <div
@@ -1692,7 +1692,7 @@ const GanttChart: React.FC = () => {
                             />
                           )
                         )
-                      : Array.from(
+                        : Array.from(
                           { length: Math.ceil(totalDays / 7) },
                           (_, i) => (
                             <div
@@ -1717,8 +1717,8 @@ const GanttChart: React.FC = () => {
                       borderRadius: "4px",
                       display: "flex",
                       alignItems: "center",
-                      boxShadow: item.type === "project" 
-                        ? "0 3px 6px rgba(0,0,0,0.15)" 
+                      boxShadow: item.type === "project"
+                        ? "0 3px 6px rgba(0,0,0,0.15)"
                         : "0 2px 4px rgba(0,0,0,0.1)",
                       border: item.type === "project" ? "2px solid #1890ff" : "1px solid rgba(0,0,0,0.1)",
                       ...calculateBarStyle(item),
@@ -1929,16 +1929,16 @@ const GanttChart: React.FC = () => {
           </div>
           <div style={{ textAlign: "center" }}>
             <div style={{ fontWeight: "bold", color: "#faad14" }}>
-              {userProjects.filter(p => p.status === "on-hold").length + 
-               userTasks.filter(t => t.status === "on-hold").length}
+              {userProjects.filter(p => p.status === "on-hold").length +
+                userTasks.filter(t => t.status === "on-hold").length}
             </div>
             <div style={{ color: "#666" }}>On Hold</div>
           </div>
           <div style={{ textAlign: "center" }}>
             <div style={{ fontWeight: "bold", color: "#52c41a" }}>
               {Math.round(
-                (userProjects.reduce((sum, p) => sum + p.progress, 0) / 
-                 (userProjects.length || 1))
+                (userProjects.reduce((sum, p) => sum + p.progress, 0) /
+                  (userProjects.length || 1))
               )}%
             </div>
             <div style={{ color: "#666" }}>Avg Progress</div>

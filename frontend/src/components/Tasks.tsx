@@ -107,9 +107,16 @@ const Tasks: React.FC = () => {
   const handleEdit = (task: Task) => {
     setEditingTask(task);
     setIsModalVisible(true);
+
+    const unitsData = (task.units_data || []).map((u: any) => ({
+      ...u,
+      date: u.date ? dayjs(u.date) : null,
+    }));
+
     form.setFieldsValue({
       ...task,
       dueDate: dayjs(task.dueDate),
+      units_data: unitsData,
     });
   };
 
@@ -838,6 +845,50 @@ const Tasks: React.FC = () => {
               <Button icon={<UploadOutlined />}>Upload Files</Button>
             </Upload>
           </Form.Item>
+
+          <Form.List name="units_data">
+            {(fields, { add, remove }) => (
+              <>
+                <Row gutter={[16, 0]} style={{ marginBottom: 8 }}>
+                  <Col span={24}>
+                    <Button type="dashed" onClick={() => add()} block>
+                      + Add Units Entry
+                    </Button>
+                  </Col>
+                </Row>
+
+                {fields.map(({ key, name, ...restField }) => (
+                  <Row gutter={[16, 0]} key={key} align="middle" style={{ marginBottom: 8 }}>
+                    <Col xs={10}>
+                      <Form.Item
+                        {...restField}
+                        name={[name, "date"]}
+                        label="Date"
+                        rules={[{ required: true, message: "Select date" }]}
+                      >
+                        <DatePicker style={{ width: "100%" }} />
+                      </Form.Item>
+                    </Col>
+                    <Col xs={10}>
+                      <Form.Item
+                        {...restField}
+                        name={[name, "units"]}
+                        label="Units"
+                        rules={[{ required: true, message: "Enter units" }]}
+                      >
+                        <InputNumber min={0} style={{ width: "100%" }} />
+                      </Form.Item>
+                    </Col>
+                    <Col xs={4}>
+                      <Button danger onClick={() => remove(name)}>
+                        Remove
+                      </Button>
+                    </Col>
+                  </Row>
+                ))}
+              </>
+            )}
+          </Form.List>
         </Form>
       </Modal>
 
@@ -862,6 +913,7 @@ const Tasks: React.FC = () => {
             Close
           </Button>,
         ]}
+        centered
       >
         {viewingTask && (
           <div>

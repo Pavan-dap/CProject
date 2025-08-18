@@ -47,6 +47,7 @@ export interface Task {
   dependentTasks?: number[];
   estimatedHours?: number;
   actualHours?: number;
+  units_data?: Record<string, any>;
 }
 
 export interface User {
@@ -158,6 +159,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({
     unit: t.unit || undefined,
     unitType: (t.unit_type as any) || undefined,
     dependencies: t.dependencies || [],
+    units_data: t.units_data || []
   });
 
   const mapUser = (u: any): User => ({
@@ -315,6 +317,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({
       floor: task.floor,
       unit: task.unit,
       unit_type: task.unitType,
+      units_data: task.units_data || []  // ✅ include units_data
     };
     const res = await fetch(`${API_BASE}/api/tasks/`, {
       method: "POST",
@@ -345,6 +348,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({
     if (updates.floor !== undefined) payload.floor = updates.floor;
     if (updates.unit !== undefined) payload.unit = updates.unit;
     if (updates.unitType !== undefined) payload.unit_type = updates.unitType;
+
+    if (updates.units_data !== undefined) payload.units_data = updates.units_data; // ✅ include units_data
 
     const res = await fetch(`${API_BASE}/api/tasks/${id}/`, {
       method: "PATCH",

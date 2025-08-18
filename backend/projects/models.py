@@ -70,6 +70,7 @@ class Task(models.Model):
     floor = models.CharField(max_length=100, blank=True, null=True)
     unit = models.CharField(max_length=100, blank=True, null=True)
     unit_type = models.CharField(max_length=20, blank=True, null=True)
-
+    units_data = models.JSONField(default=dict)
+    
     def __str__(self):
         return self.title
