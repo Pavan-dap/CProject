@@ -2,11 +2,19 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
+JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY', 'default-secret-key')
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'replace-me-in-production'
-DEBUG = True
-ALLOWED_HOSTS = ['*']
+SECRET_KEY = JWT_SECRET_KEY
+# BASE_DIR = Path(__file__).resolve().parent.parent
+
+# SECRET_KEY = 'replace-me-in-production'
+# DEBUG = True
+DEBUG = False
+
+# ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['103.235.71.9', '127.0.0.1','0.0.0.0','druvo.druvo.in','project.druvo.in',]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -31,7 +39,20 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
+CORS_ALLOW_HEADERS = [ '*' ] 
+CORS_ALLOW_METHODSS = [ '*' ] 
+# CORS_ALLOWED_ORIGINS = [
+    
+#     "http://druvo.druvo.in:8083","http://project.druvo.in:8083","http://localhost:3000","http://103.235.71.9:3000",
+#     "http://project.druvo.in:3000","http://project.druvo.in",
+ 
+# ]
+CORS_ALLOWED_ORIGINS = [
+    
+    "https://project.druvo.in"
+ 
+]
+    
 ROOT_URLCONF = 'construct_backend.urls'
 
 TEMPLATES = [
@@ -51,6 +72,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'construct_backend.wsgi.application'
+ASGI_APPLICATION = 'construct_backend.asgi.application'
 
 # ---- MySQL ----
 DATABASES = {
@@ -59,11 +81,11 @@ DATABASES = {
         'NAME': 'conproject',
         'USER': 'root',
         'PASSWORD': 'root',
-        'HOST': '127.0.0.1',
+        'HOST': 'localhost',
         'PORT': '3306',
-        'OPTIONS': {
-            'charset': 'utf8mb4',
-        }
+        # 'OPTIONS': {
+        #     'charset': 'utf8mb4',
+        # }
     }
 }
 
@@ -98,4 +120,21 @@ REST_FRAMEWORK = {
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=8),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+}
+
+LOGGING = {
+    'version': 1,
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django.db.backends': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+    },
 }
