@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 export interface User {
   id: number;
@@ -32,6 +33,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState<string | null>(null);
+
+  const navigate = useNavigate(); 
 
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
@@ -79,7 +82,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return true;
       }
       setLoading(false);
-      return false;
+      // return false;
     } catch (e) {
       console.error("Login failed", e);
       setLoading(false);
@@ -93,6 +96,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem("user");
     localStorage.removeItem("token");
     localStorage.removeItem("refresh");
+    navigate('/')
   };
 
   return (

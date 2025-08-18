@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import {
-  BrowserRouter as Router,
+  HashRouter as Router,
   Routes,
   Route,
   Navigate,
@@ -319,7 +319,7 @@ const AppContent: React.FC = () => {
             </Title>
           </div>
           <Space size="middle">
-            <Badge count={5}>
+            <Badge count={0}>
               <Button type="text" icon={<BellOutlined />} />
             </Badge>
             <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">

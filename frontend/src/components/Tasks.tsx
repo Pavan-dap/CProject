@@ -73,15 +73,30 @@ const Tasks: React.FC = () => {
   const [form] = Form.useForm();
 
   // Filter tasks based on user role
+  // const userProjects =
+  //   user?.role === "admin"
+  //     ? projects
+  //     : projects.filter((p) => user?.projectIds?.includes(p.id));
   const userProjects =
     user?.role === "admin"
       ? projects
-      : projects.filter((p) => user?.projectIds?.includes(p.id));
+      : user?.role === "manager"
+        ? projects.filter((p) => p.managerId === user.id)
+        : projects.filter((p) => user?.projectIds?.includes(p.id));
+
+  // const userTasks =
+  //   user?.role === "executive"
+  //     ? tasks.filter((t) => t.assignedTo === user.id)
+  //     : tasks.filter((t) => userProjects.some((p) => p.id === t.projectId));
 
   const userTasks =
-    user?.role === "executive"
-      ? tasks.filter((t) => t.assignedTo === user.id)
-      : tasks.filter((t) => userProjects.some((p) => p.id === t.projectId));
+    user?.role === "admin"
+      ? tasks
+      : user?.role === "manager"
+        ? tasks.filter((t) => t.assignedBy === user.id)
+        : user?.role === "executive"
+          ? tasks.filter((t) => t.assignedTo === user.id)
+          : tasks.filter((t) => userProjects.some((p) => p.id === t.projectId));
 
   const handleAdd = () => {
     setEditingTask(null);
@@ -390,15 +405,16 @@ const Tasks: React.FC = () => {
     <DragDropContext onDragEnd={onDragEnd}>
       <Row
         gutter={[16, 16]}
-        style={{ height: "calc(100vh - 300px)", overflowX: "auto" }}
+        style={{
+          height: "calc(100vh - 170px)", // adjust header/footer height if needed
+          overflowX: "auto",
+        }}
       >
         {Object.entries(statusColumns).map(([status, config]) => {
-          const statusTasks = userTasks.filter(
-            (task) => task.status === status
-          );
+          const statusTasks = userTasks.filter((task) => task.status === status);
 
           return (
-            <Col key={status} xs={24} sm={12} lg={6}>
+            <Col key={status} xs={24} sm={12} lg={6} style={{ height: "100%" }}>
               <Card
                 size="small"
                 className="kanban-column"
@@ -411,6 +427,16 @@ const Tasks: React.FC = () => {
                     <Tag color={config.color}>{statusTasks.length}</Tag>
                   </div>
                 }
+                bodyStyle={{
+                  padding: 8,
+                  height: "calc(100% - 40px)", // subtract header height
+                  overflowY: "auto", // individual column scroll
+                }}
+                style={{
+                  height: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                }}
               >
                 <Droppable droppableId={status}>
                   {(provided, snapshot) => (
@@ -418,7 +444,7 @@ const Tasks: React.FC = () => {
                       ref={provided.innerRef}
                       {...provided.droppableProps}
                       style={{
-                        minHeight: 400,
+                        minHeight: "100%",
                         background: snapshot.isDraggingOver
                           ? "#f0f9ff"
                           : "transparent",
@@ -965,9 +991,8 @@ const Tasks: React.FC = () => {
                           style={{
                             padding: "8px",
                             background: canStart ? "#f6ffed" : "#fff7e6",
-                            border: `1px solid ${
-                              canStart ? "#b7eb8f" : "#ffd591"
-                            }`,
+                            border: `1px solid ${canStart ? "#b7eb8f" : "#ffd591"
+                              }`,
                             borderRadius: "4px",
                           }}
                         >

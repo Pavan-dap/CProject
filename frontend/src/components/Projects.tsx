@@ -38,7 +38,7 @@ const { Option } = Select;
 
 const Projects: React.FC = () => {
   const { user } = useAuth();
-  const { projects, updateProject, addProject, tasks } = useData();
+  const { projects, updateProject, addProject, tasks, users } = useData();
   const { forceSync } = useRealTimeSync();
   const { refreshKey } = useComponentRefresh();
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -49,7 +49,9 @@ const Projects: React.FC = () => {
   const userProjects =
     user?.role === "admin"
       ? projects
-      : projects.filter((p) => user?.projectIds?.includes(p.id));
+      : user?.role === "manager"
+        ? projects.filter((p) => p.managerId === user.id)
+        : projects.filter((p) => user?.projectIds?.includes(p.id));
 
   const handleAdd = () => {
     setEditingProject(null);
@@ -74,7 +76,6 @@ const Projects: React.FC = () => {
         ...values,
         startDate: values.startDate.format("YYYY-MM-DD"),
         endDate: values.endDate.format("YYYY-MM-DD"),
-        managerId: user?.id || 1,
       };
 
       if (editingProject) {
@@ -235,9 +236,9 @@ const Projects: React.FC = () => {
   const avgProgress =
     userProjects.length > 0
       ? Math.round(
-          userProjects.reduce((sum, p) => sum + p.progress, 0) /
-            userProjects.length
-        )
+        userProjects.reduce((sum, p) => sum + p.progress, 0) /
+        userProjects.length
+      )
       : 0;
   const activeProjects = userProjects.filter(
     (p) => p.status === "in-progress"
@@ -451,6 +452,23 @@ const Projects: React.FC = () => {
                 rules={[{ required: true, message: "Please enter progress" }]}
               >
                 <InputNumber min={0} max={100} style={{ width: "100%" }} />
+              </Form.Item>
+            </Col>
+            <Col xs={24} sm={12}>
+              <Form.Item
+                name="managerId"
+                label="Project Manager"
+                rules={[{ required: true, message: "Please select a manager" }]}
+              >
+                <Select placeholder="Select manager">
+                  {users
+                    .filter((u) => u.role === "manager")
+                    .map((u) => (
+                      <Option key={u.id} value={u.id}>
+                        {u.name} ({u.email})
+                      </Option>
+                    ))}
+                </Select>
               </Form.Item>
             </Col>
           </Row>

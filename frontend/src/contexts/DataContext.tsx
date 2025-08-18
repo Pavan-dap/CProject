@@ -52,6 +52,9 @@ export interface Task {
 export interface User {
   id: number;
   name: string;
+  first_name: string;
+  last_name: string;
+  username: string;
   email: string;
   role: "admin" | "manager" | "incharge" | "executive";
   phone?: string;
@@ -159,16 +162,19 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const mapUser = (u: any): User => ({
     id: u.id,
+    first_name: u.first_name,
+    last_name: u.last_name,
     name: `${u.first_name || ""} ${u.last_name || ""}`.trim() || u.username,
     email: u.email,
+    username: u.username,
     role: u.role,
     phone: u.phone || "",
     status: u.status || "active",
     projects: u.projects
       ? u.projects.map((p: any) => ({
-          id: p.id,
-          name: p.name,
-        }))
+        id: p.id,
+        name: p.name,
+      }))
       : [],
     joinDate: u.join_date,
     confirmPassword: u.confirm_password || "", // ✅ add
@@ -219,9 +225,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({
       prevTasks.map((task) =>
         task.id === taskId
           ? {
-              ...task,
-              dependencies: [...(task.dependencies || []), dependencyId],
-            }
+            ...task,
+            dependencies: [...(task.dependencies || []), dependencyId],
+          }
           : task
       )
     );
@@ -229,7 +235,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const canStartTask = (_taskId: number) => true;
   const getTaskComments = (_taskId: number) => [];
-  const addTaskComment = (_taskId: number, _comment: Omit<Comment, "id">) => {};
+  const addTaskComment = (_taskId: number, _comment: Omit<Comment, "id">) => { };
 
   // ----- CRUD that hit backend and update local state -----
   const addProject = async (project: Omit<Project, "id">) => {
@@ -352,7 +358,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({
   const addUser = async (user: Omit<User, "id">) => {
     const payload = {
       // username: user.email.split("@")[0],
-      username: `${user.first_name}.${user.last_name}`.toLowerCase(),
+      username: user.username || `${user.first_name}.${user.last_name}`.toLowerCase(),
       email: user.email,
       first_name: user.first_name,
       last_name: user.last_name,

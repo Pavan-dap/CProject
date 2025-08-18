@@ -182,9 +182,9 @@ const Users: React.FC = () => {
         const initials =
           fullName !== "N/A"
             ? fullName
-                ?.split(" ")
-                ?.map((n) => n[0])
-                ?.join("")
+              ?.split(" ")
+              ?.map((n) => n[0])
+              ?.join("")
             : "?";
 
         return (
@@ -200,14 +200,14 @@ const Users: React.FC = () => {
             </Avatar>
             <div>
               <div style={{ fontWeight: 500 }}>{fullName}</div>
+              {record.username && (
+                <div style={{ fontSize: "12px", color: "#666" }}>
+                  <UserOutlined /> {record.username}
+                </div>
+              )}
               <div style={{ fontSize: "12px", color: "#666" }}>
                 <MailOutlined /> {record.email ?? "N/A"}
               </div>
-              {record.phone && (
-                <div style={{ fontSize: "12px", color: "#666" }}>
-                  <PhoneOutlined /> {record.phone}
-                </div>
-              )}
             </div>
           </div>
         );

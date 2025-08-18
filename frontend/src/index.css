@@ -221,3 +221,28 @@
     display: none;
   }
 }
+
+
+/* Slim scrollbar for Kanban columns */
+.kanban-column .ant-card-body {
+  scrollbar-width: thin;         /* Firefox */
+  scrollbar-color: #ccc transparent;
+}
+
+/* Chrome, Edge, Safari */
+.kanban-column .ant-card-body::-webkit-scrollbar {
+  width: 3px;   /* 👈 reduce width */
+}
+
+.kanban-column .ant-card-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.kanban-column .ant-card-body::-webkit-scrollbar-thumb {
+  background: #bbb;
+  border-radius: 4px;
+}
+
+.kanban-column .ant-card-body::-webkit-scrollbar-thumb:hover {
+  background: #888;
+}
