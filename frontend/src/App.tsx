@@ -16,6 +16,7 @@ import {
   Space,
   Typography,
   Badge,
+  Tooltip,
 } from "antd";
 import {
   DashboardOutlined,
@@ -250,10 +251,11 @@ const AppContent: React.FC = () => {
             items={filteredMenuItems.map((item) => ({
               key: item.key,
               icon: item.icon,
-              label: item.label,
+              // label: item.label,
+              label: collapsed ? null : item.label,
+              title: collapsed ? item.label : "",
               onClick: () => {
                 navigate(item.path);
-                // Auto-hide on mobile after selection
                 if (isMobile) {
                   setCollapsed(true);
                 }
