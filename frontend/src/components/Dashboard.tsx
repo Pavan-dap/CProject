@@ -54,8 +54,8 @@ const Dashboard: React.FC = () => {
     user?.role === "executive"
       ? tasks.filter((t) => t.assignedTo === user.id)
       : user?.role === "admin"
-      ? tasks
-      : tasks.filter((t) => userProjects.some((p) => p.id === t.projectId));
+        ? tasks
+        : tasks.filter((t) => userProjects.some((p) => p.id === t.projectId));
 
   // Statistics
   const totalProjects = userProjects.length;
@@ -356,7 +356,7 @@ const Dashboard: React.FC = () => {
                 </Card>
               </Col>
             )}
-            <Col xs={24}>
+            {/* <Col xs={24}>
               <Card title="Recent Activities" size="small">
                 <List
                   dataSource={recentActivities}
@@ -381,7 +381,7 @@ const Dashboard: React.FC = () => {
                   size="small"
                 />
               </Card>
-            </Col>
+            </Col> */}
             <Col xs={24}>
               <Card title="Upcoming Tasks" size="small">
                 <List
@@ -405,8 +405,8 @@ const Dashboard: React.FC = () => {
                               task.priority === "high"
                                 ? "red"
                                 : task.priority === "medium"
-                                ? "orange"
-                                : "blue"
+                                  ? "orange"
+                                  : "blue"
                             }
                             size="small"
                           >
